@@ -234,13 +234,19 @@ void showCart()
         struct CartItem item = cart[i];
 
         float price = getProductPrice(item.name, item.size);
-        float subtotal = (float)item.quantity * price;
-        float addonSubtotal = (float)ADDON_PRICE * item.quantity;
 
-        total += subtotal + addonSubtotal;
+        float subtotal = (float)item.quantity * price;
+        float addonSubtotal = 0;
 
         printf("| %3d | %-32s%-10s %6.2f   x %5d     |%8.2f  |\n", i + 1, item.name, item.size, price, item.quantity, subtotal);
-        printf("|     | └ %-32s%-8s %6.2f   x %5d     |%8.2f  |\n", item.addon, "", (float)ADDON_PRICE, item.quantity, addonSubtotal);
+
+        if (strcmp(item.addon, "None") == 1)
+        {
+            addonSubtotal = (float)ADDON_PRICE * item.quantity;
+            printf("|     | └ %-32s%-8s %6.2f   x %5d     |%8.2f  |\n", item.addon, "", (float)ADDON_PRICE, item.quantity, addonSubtotal);
+        }
+
+        total += subtotal + addonSubtotal;
     }
     printf("+-----+-----------------------------------------------------------------+----------+\n");
     printf("|                                                          Total: %15.2f  |\n", total);
@@ -259,8 +265,11 @@ int main()
     addToCart(item1);
     addToCart(item1);
 
-    struct CartItem item2 = {"Milk Tea", "Tapioca Pearls", "18oz", 1};
+    struct CartItem item2 = {"Hot Coffee", "None", "12oz", 1};
     addToCart(item2);
+
+    struct CartItem item3 = {"Milk Tea", "Tapioca Pearls", "18oz", 1};
+    addToCart(item3);
 
     showCart();
 
