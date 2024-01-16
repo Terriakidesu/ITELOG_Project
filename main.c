@@ -181,8 +181,7 @@ void addToCart(struct CartItem cartItem)
     if (cartItem.quantity <= 0)
         return;
 
-    if (cartItem.quantity > MAX_QUANTITY)
-        cartItem.quantity = MAX_QUANTITY;
+    cartItem.quantity = min(cartItem.quantity, MAX_QUANTITY);
 
     int duplicate = findByName(getProductFullName(cartItem));
 
@@ -222,6 +221,24 @@ void removeFromCartByName(const char *name)
     if (index != -1)
     {
         removeFromCart(index);
+    }
+}
+
+void setCartItemQuantityByIndex(int index, int quantity)
+{
+
+    if (index >= 0 && index < cartSize)
+    {
+
+        if (quantity <= 0)
+        {
+            removeFromCart(index);
+            return;
+        }
+
+        quantity = min(quantity, MAX_QUANTITY);
+
+        cart[index].quantity = quantity;
     }
 }
 
