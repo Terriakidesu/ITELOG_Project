@@ -286,11 +286,11 @@ void showCart()
 
         printf("| %3d | %-32s%-10s %6.2f   x %5d     |%10.2f  |\n", i + 1, item.name, item.size, price, item.quantity, subtotal);
 
-        if (strcmp(item.addon, "None") == 1)
-        {
-            float addonSubtotal = (float)addonPrice * item.quantity;
-            printf("|     | └ %-32s%-8s %6.2f   x %5d     |%10.2f  |\n", item.addon, "", (float)addonPrice, item.quantity, addonSubtotal);
-        }
+        if (strcmp(item.addon, "None") == 0)
+            continue;
+
+        float addonSubtotal = (float)addonPrice * item.quantity;
+        printf("|     | └ %-32s%-8s %6.2f   x %5d     |%10.2f  |\n", item.addon, "", (float)addonPrice, item.quantity, addonSubtotal);
     }
 
     float total = getCartTotalPrice();
