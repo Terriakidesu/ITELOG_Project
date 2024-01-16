@@ -217,10 +217,33 @@ void removeFromCartByName(const char *name)
     }
 }
 
+float getCartTotalPrice()
+{
+    float total;
+
+    for (int i = 0; i < cartSize; i++)
+    {
+        struct CartItem item = cart[i];
+
+        float price = getProductPrice(item.name, item.size);
+
+        float subtotal = (float)item.quantity * price;
+        float addonSubtotal = 0;
+
+        if (strcmp(item.addon, "None") == 1)
+        {
+            addonSubtotal = (float)ADDON_PRICE * item.quantity;
+        }
+
+        total += subtotal + addonSubtotal;
+    }
+
+    return total;
+}
+
 void showCart()
 {
 
-    float total = 0;
     printf("+----------------------------------------------------------------------------------+\n");
     printf("|                                       Cart                                       |\n");
     printf("+-----+-----------------------------------------------------------------+----------+\n");
@@ -233,18 +256,17 @@ void showCart()
         float price = getProductPrice(item.name, item.size);
 
         float subtotal = (float)item.quantity * price;
-        float addonSubtotal = 0;
 
         printf("| %3d | %-32s%-10s %6.2f   x %5d     |%8.2f  |\n", i + 1, item.name, item.size, price, item.quantity, subtotal);
 
         if (strcmp(item.addon, "None") == 1)
         {
-            addonSubtotal = (float)ADDON_PRICE * item.quantity;
+            float addonSubtotal = (float)ADDON_PRICE * item.quantity;
             printf("|     | └ %-32s%-8s %6.2f   x %5d     |%8.2f  |\n", item.addon, "", (float)ADDON_PRICE, item.quantity, addonSubtotal);
         }
-
-        total += subtotal + addonSubtotal;
     }
+
+    float total = getCartTotalPrice();
     printf("+-----+-----------------------------------------------------------------+----------+\n");
     printf("|                                                          Total: %15.2f  |\n", total);
     printf("+----------------------------------------------------------------------------------+\n");
