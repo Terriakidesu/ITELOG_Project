@@ -181,7 +181,8 @@ void addToCart(struct CartItem cartItem)
     if (cartItem.quantity <= 0)
         return;
 
-    cartItem.quantity = min(cartItem.quantity, MAX_QUANTITY);
+    if (cartItem.quantity > MAX_QUANTITY)
+        cartItem.quantity = MAX_QUANTITY;
 
     int duplicate = findByName(getProductFullName(cartItem));
 
@@ -236,7 +237,8 @@ void setCartItemQuantityByIndex(int index, int quantity)
             return;
         }
 
-        quantity = min(quantity, MAX_QUANTITY);
+        if (quantity > MAX_QUANTITY)
+            quantity = MAX_QUANTITY;
 
         cart[index].quantity = quantity;
     }
