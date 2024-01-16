@@ -4,11 +4,13 @@
 
 #define MAX_STACK_SIZE 10
 #define MAX_CART_SIZE 500
-#define ADDON_PRICE 10
+#define MAX_QUANTITY 99
 
 /*==============================*
  *          PRODUCTS            *
  *==============================*/
+
+const int addonPrice = 10;
 
 const char *hotCoffeeFlavors[] = {
     "Vanilla",
@@ -49,9 +51,9 @@ const char *icedCoffeeSizes[] = {
     "20oz",
 };
 
-float hotCoffeePrice = 30.0;
+const float hotCoffeePrice = 30.0;
 
-float icedCoffeePrices[] = {
+const float icedCoffeePrices[] = {
     50.0,
     80.0,
     120.0,
@@ -84,7 +86,7 @@ const char *milkTeaSizes[] = {
     "20oz",
 };
 
-float milkTeaPrices[] = {
+const float milkTeaPrices[] = {
     100.0,
     150.0,
 };
@@ -179,8 +181,8 @@ void addToCart(struct CartItem cartItem)
     if (cartItem.quantity <= 0)
         return;
 
-    if (cartItem.quantity > 99)
-        cartItem.quantity = 99;
+    if (cartItem.quantity > MAX_QUANTITY)
+        cartItem.quantity = MAX_QUANTITY;
 
     int duplicate = findByName(getProductFullName(cartItem));
 
@@ -238,7 +240,7 @@ float getCartTotalPrice()
 
         if (strcmp(item.addon, "None") == 1)
         {
-            addonSubtotal = (float)ADDON_PRICE * item.quantity;
+            addonSubtotal = (float)addonPrice * item.quantity;
         }
 
         total += subtotal + addonSubtotal;
@@ -267,8 +269,8 @@ void showCart()
 
         if (strcmp(item.addon, "None") == 1)
         {
-            float addonSubtotal = (float)ADDON_PRICE * item.quantity;
-            printf("|     | └ %-32s%-8s %6.2f   x %5d     |%10.2f  |\n", item.addon, "", (float)ADDON_PRICE, item.quantity, addonSubtotal);
+            float addonSubtotal = (float)addonPrice * item.quantity;
+            printf("|     | └ %-32s%-8s %6.2f   x %5d     |%10.2f  |\n", item.addon, "", (float)addonPrice, item.quantity, addonSubtotal);
         }
     }
 
@@ -299,8 +301,11 @@ int main()
     struct CartItem item2 = {"Hot Coffee", "None", "", 1};
     addToCart(item2);
 
-    struct CartItem item3 = {"Milk Tea", "Tapioca Pearls", "18oz", 1};
+    struct CartItem item3 = {"Iced Coffee", "Vanilla", "20oz", 1};
     addToCart(item3);
+
+    struct CartItem item4 = {"Milk Tea", "Tapioca Pearls", "18oz", 1};
+    addToCart(item4);
 
     showCart();
 
