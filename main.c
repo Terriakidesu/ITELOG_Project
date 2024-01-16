@@ -154,15 +154,42 @@ char *getProductFullName(struct CartItem cartItem)
     return fullName;
 }
 
-// TODO: Merge Same Products
+int findByName(const char *name)
+{
+    int index = -1;
+    for (int i = 0; i < cartSize; i++)
+    {
+        char *productName = getProductFullName(cart[i]);
+        if (strcmp(productName, name) == 0)
+        {
+            free(productName);
+            index = i;
+            break;
+        }
+
+        free(productName);
+    }
+
+    return index;
+}
 
 void addToCart(struct CartItem cartItem)
 {
 
-    if (cartSize < MAX_CART_SIZE)
+    int duplicate = findByName(getProductFullName(cartItem));
+
+    if (duplicate == -1)
     {
-        cart[cartSize] = cartItem;
-        cartSize++;
+
+        if (cartSize < MAX_CART_SIZE)
+        {
+            cart[cartSize] = cartItem;
+            cartSize++;
+        }
+    }
+    else
+    {
+        cart[duplicate].quantity += cartItem.quantity;
     }
 }
 
@@ -182,19 +209,7 @@ void removeFromCart(int index)
 
 void removeFromByName(const char *name)
 {
-    int index = -1;
-    for (int i = 0; i < cartSize; i++)
-    {
-        char *productName = getProductFullName(cart[i]);
-        if (strcmp(productName, name) == 0)
-        {
-            free(productName);
-            index = i;
-            break;
-        }
-
-        free(productName);
-    }
+    int index = findByName(name);
 
     if (index != -1)
     {
@@ -231,6 +246,10 @@ void showCart()
     printf("|                                                          Total: %15.2f  |\n", total);
     printf("+----------------------------------------------------------------------------------+\n");
 }
+
+/*==============================*
+ *             MAIN             *
+ *==============================*/
 
 int main()
 {
