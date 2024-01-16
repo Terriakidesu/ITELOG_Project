@@ -21,8 +21,6 @@ const char *hotCoffeeFlavors[] = {
     "Matcha",
 };
 
-float hotCoffeePrice = 30.0;
-
 const char *icedCoffeeFlavors[] = {
     "Vanilla",
     "Caramel Macchiato",
@@ -50,6 +48,8 @@ const char *icedCoffeeSizes[] = {
     "18oz",
     "20oz",
 };
+
+float hotCoffeePrice = 30.0;
 
 float icedCoffeePrices[] = {
     50.0,
@@ -207,7 +207,7 @@ void removeFromCart(int index)
     }
 }
 
-void removeFromByName(const char *name)
+void removeFromCartByName(const char *name)
 {
     int index = findByName(name);
 
@@ -216,9 +216,6 @@ void removeFromByName(const char *name)
         removeFromCart(index);
     }
 }
-
-// Item <index> : <item.name> [<item.size>]                              <item.price> x <item.quantity>
-//               - <item.addon>                                          <addon.price> x <item.quantity>
 
 void showCart()
 {
