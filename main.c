@@ -10,7 +10,7 @@
  *          PRODUCTS            *
  *==============================*/
 
-const int addonPrice = 10;
+const int addonPrice = 10.0;
 
 const char *hotCoffeeFlavors[] = {
     "Vanilla",
@@ -91,8 +91,10 @@ const float milkTeaPrices[] = {
     150.0,
 };
 
-int getSizeIndex(const char *sizes[], int length, const char *size)
+int getSizeIndex(const char *sizes[], const char *size)
 {
+
+    int length = (int)sizeof(sizes) / sizeof(sizes[0]);
 
     int index = -1;
 
@@ -117,12 +119,12 @@ float getProductPrice(const char *name, const char *size)
     }
     else if (strcmp(name, "Iced Coffee") == 0)
     {
-        int index = getSizeIndex(icedCoffeeSizes, 3, size);
+        int index = getSizeIndex(icedCoffeeSizes, size);
         return icedCoffeePrices[index];
     }
     else if (strcmp(name, "Milk Tea") == 0)
     {
-        int index = getSizeIndex(milkTeaSizes, 2, size);
+        int index = getSizeIndex(milkTeaSizes, size);
         return milkTeaPrices[index];
     }
 
@@ -156,7 +158,7 @@ char *getProductFullName(struct CartItem cartItem)
     return fullName;
 }
 
-int findByName(const char *name)
+int findItemIndexByName(const char *name)
 {
     int index = -1;
     for (int i = 0; i < cartSize; i++)
@@ -184,7 +186,7 @@ void addToCart(struct CartItem cartItem)
     if (cartItem.quantity > MAX_QUANTITY)
         cartItem.quantity = MAX_QUANTITY;
 
-    int duplicate = findByName(getProductFullName(cartItem));
+    int duplicate = findItemIndexByName(getProductFullName(cartItem));
 
     if (duplicate == -1)
     {
@@ -217,7 +219,7 @@ void removeFromCart(int index)
 
 void removeFromCartByName(const char *name)
 {
-    int index = findByName(name);
+    int index = findItemIndexByName(name);
 
     if (index != -1)
     {
@@ -268,11 +270,8 @@ float getCartTotalPrice()
     return total;
 }
 
-void showCart()
+void listCartItems()
 {
-
-    printf("+------------------------------------------------------------------------------------+\n");
-    printf("|                                        Cart                                        |\n");
     printf("+-----+-----------------------------------------------------------------+------------+\n");
     printf("|  #  |    Name                         Size        Price      Quantity |  Subtotal  |\n");
     printf("+-----+-----------------------------------------------------------------+------------+\n");
@@ -296,6 +295,32 @@ void showCart()
     float total = getCartTotalPrice();
     printf("+-----+-----------------------------------------------------------------+------------+\n");
     printf("|                                                            Total: %15.2f  |\n", total);
+}
+
+void showReceipt(float cashAmount)
+{
+
+    float total = getCartTotalPrice();
+
+    float change = cashAmount - total;
+
+    if (change < 0)
+        return;
+
+    printf("+------------------------------------------------------------------------------------+\n");
+    printf("|                                      Receipt                                       |\n");
+    listCartItems();
+    printf("|                                                            Cash:  %15.2f  |\n", cashAmount);
+    printf("|                                                            Change: %14.2f  |\n", change);
+    printf("+------------------------------------------------------------------------------------+\n");
+}
+
+void showCart()
+{
+
+    printf("+------------------------------------------------------------------------------------+\n");
+    printf("|                                        Cart                                        |\n");
+    listCartItems();
     printf("+------------------------------------------------------------------------------------+\n");
 }
 
@@ -326,7 +351,7 @@ int main()
     struct CartItem item4 = {"Milk Tea", "Tapioca Pearls", "18oz", 1};
     addToCart(item4);
 
-    showCart();
+    showReceipt(3000);
 
     return 0;
 }
