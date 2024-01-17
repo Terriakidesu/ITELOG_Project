@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_HISTORY_STACK 10
+#define MAX_HISTORY_STACK 50
 #define MAX_CART_SIZE 500
 #define MAX_QUANTITY 99
 
@@ -355,26 +355,8 @@ typedef struct
     void (*action)();
 } MenuPage;
 
-struct MenuPage history[MAX_HISTORY_STACK];
-
-/*==============================*
- *        CHOICE HANDLER        *
- *==============================*/
-
-int handleChoice(const char *choice)
-{
-
-    char buffer[25];
-    strcpy(buffer, choice);
-    buffer[strcspn(choice, "\n")] = '\0';
-
-    if (strcmp(buffer, "quit") == 0)
-    {
-        return 0;
-    }
-
-    return 1;
-}
+MenuPage history[MAX_HISTORY_STACK];
+ 
 
 /*==============================*
  *             MAIN             *
@@ -383,17 +365,7 @@ int handleChoice(const char *choice)
 int main()
 {
 
-    int running = 1;
-
-    while (running == 1)
-    {
-        char inp[25];
-
-        printf("Enter Input: ");
-        fgets(inp, 25, stdin);
-
-        running = handleChoice(inp);
-    }
+    
 
     return 0;
 }
