@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_STACK_SIZE 10
+#define MAX_HISTORY_STACK 10
 #define MAX_CART_SIZE 500
 #define MAX_QUANTITY 99
 
@@ -132,19 +132,19 @@ float getProductPrice(const char *name, const char *size)
  *             CART             *
  *==============================*/
 
-struct CartItem
+typedef struct
 {
     char *name;
     char *addon;
     char *size;
 
     int quantity;
-};
+} CartItem;
 
 int cartSize = 0;
-struct CartItem cart[MAX_CART_SIZE];
+CartItem cart[MAX_CART_SIZE];
 
-char *getProductFullName(struct CartItem cartItem)
+char *getProductFullName(CartItem cartItem)
 {
     char *fullName = malloc(strlen(cartItem.name) + strlen(cartItem.addon) + strlen(cartItem.size) + 1);
 
@@ -174,7 +174,7 @@ int findItemIndexByName(const char *name)
     return index;
 }
 
-void addToCart(struct CartItem cartItem)
+void addToCart(CartItem cartItem)
 {
 
     if (cartItem.quantity <= 0)
@@ -249,7 +249,7 @@ float getCartTotalPrice()
 
     for (int i = 0; i < cartSize; i++)
     {
-        struct CartItem item = cart[i];
+        CartItem item = cart[i];
 
         float price = getProductPrice(item.name, item.size);
 
@@ -274,7 +274,7 @@ void listCartItems()
     printf("+-----+-----------------------------------------------------------------+------------+\n");
     for (int i = 0; i < cartSize; i++)
     {
-        struct CartItem item = cart[i];
+        CartItem item = cart[i];
 
         float price = getProductPrice(item.name, item.size);
 
@@ -349,7 +349,13 @@ void showMenuItems(const char *menuName, const char *menuItems[], unsigned int m
  *          NAVIGATION          *
  *==============================*/
 
-// TODO : Naigation System
+typedef struct
+{
+    char *name;
+    void (*action)();
+} MenuPage;
+
+struct MenuPage history[MAX_HISTORY_STACK];
 
 /*==============================*
  *        CHOICE HANDLER        *
