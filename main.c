@@ -94,7 +94,7 @@ const float milkTeaPrices[] = {
 int getSizeIndex(const char *sizes[], const char *size)
 {
 
-    int length = (int)sizeof(sizes) / sizeof(sizes[0]);
+    int length = sizeof(sizes) / sizeof(sizes[0]);
 
     int index = -1;
 
@@ -330,6 +330,28 @@ void showCart()
 
 // TODO : Naigation System
 
+void showMenu(const char *menuName)
+{
+    printf("+--------------------------------------------------------------------+\n");
+    printf("| %-11s                                         |\n", menuName);
+    printf("+--------------------------------------------------------------------+\n");
+}
+
+void showMenuItems(const char *menuName, const char *menuItems[], unsigned int menuItemCount)
+{
+
+    printf("+-------------------------------------------------------------+\n");
+    printf("| %-11s                                         |\n", menuName);
+    printf("+-------------------------------------------------------------+\n");
+
+    for (int i = 0; i < menuItemCount; i++)
+    {
+        printf("| %2d. %-25s %-29s |\n", i + 1, menuItems[i], "");
+    }
+
+    printf("+-------------------------------------------------------------+\n");
+}
+
 /*==============================*
  *             MAIN             *
  *==============================*/
@@ -337,21 +359,7 @@ void showCart()
 int main()
 {
 
-    struct CartItem item1 = {"Hot Coffee", "Vanilla", "", 2};
-    addToCart(item1);
-    addToCart(item1);
-    addToCart(item1);
-
-    struct CartItem item2 = {"Hot Coffee", "None", "", 1};
-    addToCart(item2);
-
-    struct CartItem item3 = {"Iced Coffee", "Vanilla", "20oz", 1};
-    addToCart(item3);
-
-    struct CartItem item4 = {"Milk Tea", "Tapioca Pearls", "18oz", 1};
-    addToCart(item4);
-
-    showReceipt(3000);
+    showMenuItems("Iced Coffee Flavors", icedCoffeeFlavors, 11);
 
     return 0;
 }
