@@ -91,14 +91,11 @@ const float milkTeaPrices[] = {
     150.0,
 };
 
-int getSizeIndex(const char *sizes[], const char *size)
+int getSizeIndex(const char *sizes[], const char *size, unsigned int sizeCount)
 {
-
-    int length = sizeof(sizes) / sizeof(sizes[0]);
-
     int index = -1;
 
-    for (int i = 0; i < length; i++)
+    for (int i = 0; i < sizeCount; i++)
     {
         if (strcmp(sizes[i], size) == 0)
         {
@@ -119,12 +116,12 @@ float getProductPrice(const char *name, const char *size)
     }
     else if (strcmp(name, "Iced Coffee") == 0)
     {
-        int index = getSizeIndex(icedCoffeeSizes, size);
+        int index = getSizeIndex(icedCoffeeSizes, size, 3);
         return icedCoffeePrices[index];
     }
     else if (strcmp(name, "Milk Tea") == 0)
     {
-        int index = getSizeIndex(milkTeaSizes, size);
+        int index = getSizeIndex(milkTeaSizes, size, 2);
         return milkTeaPrices[index];
     }
 
@@ -325,12 +322,6 @@ void showCart()
 }
 
 /*==============================*
- *          NAVIGATION          *
- *==============================*/
-
-// TODO : Naigation System
-
-/*==============================*
  *             MENU             *
  *==============================*/
 
@@ -353,6 +344,12 @@ void showMenuItems(const char *menuName, const char *menuItems[], unsigned int m
 
     printf("+-------------------------------------------------------------+\n");
 }
+
+/*==============================*
+ *          NAVIGATION          *
+ *==============================*/
+
+// TODO : Naigation System
 
 /*==============================*
  *        CHOICE HANDLER        *
