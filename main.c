@@ -322,13 +322,46 @@ void showCart()
 }
 
 /*==============================*
- *             MENU             *
+ *          NAVIGATION          *
+ *==============================*/
+
+typedef struct
+{
+    char *name;
+    int (*action)();
+} MenuPage;
+
+MenuPage history[MAX_HISTORY_STACK];
+int historySize = 0;
+
+int historyPop()
+{
+
+    if (historySize > 0)
+    {
+        history[historySize--];
+        return historySize;
+    }
+
+    return -1;
+}
+
+void historyPush(MenuPage menuPage)
+{
+    if (historySize < MAX_HISTORY_STACK - 1)
+    {
+        history[++historySize] = menuPage;
+    }
+}
+
+/*==============================*
+ *            MENUS             *
  *==============================*/
 
 void showMenuName(const char *menuName)
 {
     printf("+-------------------------------------------------------------+\n");
-    printf("| %-11s                                         |\n", menuName);
+    printf("| > %-57s |\n", menuName, "");
     printf("+-------------------------------------------------------------+\n");
 }
 
@@ -345,18 +378,58 @@ void showMenuItems(const char *menuName, const char *menuItems[], unsigned int m
     printf("+-------------------------------------------------------------+\n");
 }
 
-/*==============================*
- *          NAVIGATION          *
- *==============================*/
-
-typedef struct
+int getIntegerInput()
 {
-    char *name;
-    void (*action)();
-} MenuPage;
+    int inp = 0;
+    printf("  Input > ");
+    scanf("%d", &inp);
+    return inp;
+}
 
-MenuPage history[MAX_HISTORY_STACK];
- 
+void showSelectCoffeeTypeMenu()
+{
+    showMenuName("Coffee Type");
+    printf("|                                                             |\n");
+    printf("|    What Coffee would you like to buy?                       |\n");
+    printf("|     [1] Hot                                                 |\n");
+    printf("|     [2] Iced                                                |\n");
+    printf("|                                                             |\n");
+    printf("+-------------------------------------------------------------+\n");
+}
+
+void showMainMenu()
+{
+    showMenuName("Yummy Tea Cafe");
+    printf("|                                                             |\n");
+    printf("|    What product would you like to buy?                      |\n");
+    printf("|     [1] Coffee                                              |\n");
+    printf("|     [2] Milk Tea                                            |\n");
+    printf("|                                                             |\n");
+    printf("|     [0] Exit                                                |\n");
+    printf("|                                                             |\n");
+    printf("+-------------------------------------------------------------+\n");
+
+    switch (getIntegerInput())
+    {
+    case 1:
+        MenuPage CoffeeTypeMenu = {
+            "Coffee Type",
+            showSelectCoffeeTypeMenu,
+        };
+        historyPush(CoffeeTypeMenu);
+        break;
+    case 2:
+
+        break;
+
+    case 0:
+
+        break;
+    default:
+
+        break;
+    }
+}
 
 /*==============================*
  *             MAIN             *
@@ -365,7 +438,20 @@ MenuPage history[MAX_HISTORY_STACK];
 int main()
 {
 
-    
+    int running = 1;
+
+    MenuPage mainMenu = {
+        "Main Menu",
+        showMainMenu,
+    };
+    historyPush(mainMenu);
+
+    while (running != 0)
+    {
+
+        printf("%d\n", historySize);
+        history[historySize].action();
+    }
 
     return 0;
 }
