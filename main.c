@@ -330,19 +330,21 @@ void showCart()
 
 // TODO : Naigation System
 
-void showMenu(const char *menuName)
+/*==============================*
+ *             MENU             *
+ *==============================*/
+
+void showMenuName(const char *menuName)
 {
-    printf("+--------------------------------------------------------------------+\n");
+    printf("+-------------------------------------------------------------+\n");
     printf("| %-11s                                         |\n", menuName);
-    printf("+--------------------------------------------------------------------+\n");
+    printf("+-------------------------------------------------------------+\n");
 }
 
 void showMenuItems(const char *menuName, const char *menuItems[], unsigned int menuItemCount)
 {
 
-    printf("+-------------------------------------------------------------+\n");
-    printf("| %-11s                                         |\n", menuName);
-    printf("+-------------------------------------------------------------+\n");
+    showMenuName(menuName);
 
     for (int i = 0; i < menuItemCount; i++)
     {
@@ -353,13 +355,42 @@ void showMenuItems(const char *menuName, const char *menuItems[], unsigned int m
 }
 
 /*==============================*
+ *        CHOICE HANDLER        *
+ *==============================*/
+
+int handleChoice(const char *choice)
+{
+
+    char buffer[25];
+    strcpy(buffer, choice);
+    buffer[strcspn(choice, "\n")] = '\0';
+
+    if (strcmp(buffer, "quit") == 0)
+    {
+        return 0;
+    }
+
+    return 1;
+}
+
+/*==============================*
  *             MAIN             *
  *==============================*/
 
 int main()
 {
 
-    showMenuItems("Iced Coffee Flavors", icedCoffeeFlavors, 11);
+    int running = 1;
+
+    while (running == 1)
+    {
+        char inp[25];
+
+        printf("Enter Input: ");
+        fgets(inp, 25, stdin);
+
+        running = handleChoice(inp);
+    }
 
     return 0;
 }
