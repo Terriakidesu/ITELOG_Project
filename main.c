@@ -136,7 +136,7 @@ typedef struct
 {
     char name[30];
     char addon[30];
-    char size[4];
+    char size[10];
 
     int quantity;
 } CartItem;
@@ -334,6 +334,7 @@ typedef enum
     MENU_EVENT_SET_SIZE,
     MENU_EVENT_SET_QUANTITY,
     MENU_EVENT_ADD_TO_CART,
+    MENU_EVENT_RESET_PRODUCT,
 } MENU_EVENTS;
 
 typedef struct
@@ -462,10 +463,11 @@ void showCurrentOrder(CartItem item, int removeTop, int removeBottom)
         printf("+-------------------------------------------------------------+\n");
 
     printf("|   Current Order:      %36.2f  |\n", total);
-    printf("|    %-14s  %-5s%9.2f   x %5d   = %10.2f  |\n", item.name, item.size, price, item.quantity, subtotal);
+    printf("|   %-14s         %4s %7.2f x %2d      %10.2f  |\n", item.name, item.size, price, item.quantity, subtotal);
     if (strcmp(item.addon, "") != 0)
     {
-        printf("|     └ %-15s%-5s %6.2f   x %5d   = %10.2f  |\n", item.addon, "", (float)addonPrice, item.quantity, addonSubtotal);
+
+        printf("|   └ %-22s    %7.2f x %2d      %10.2f  |\n", item.addon, (float)addonPrice, item.quantity, addonSubtotal);
     }
     if (removeBottom == 0)
         printf("+-------------------------------------------------------------+\n");
@@ -518,7 +520,7 @@ MenuEvent showSetQuantityMenu(CartItem item)
     printf("|    <  Back                                                  |\n");
     printf("+-------------------------------------------------------------+\n");
 
-    char *input = getInputString("Quantity");
+    char *input = getInputString("Quantity (Max 99)");
 
     if (strcmp(input, "cart") == 0)
     {
@@ -531,16 +533,16 @@ MenuEvent showSetQuantityMenu(CartItem item)
     if (sscanf(input, "%d", &quantity) == 1)
     {
         event.id = MENU_EVENT_SET_QUANTITY;
-
-        if (quantity >= MAX_QUANTITY)
-            quantity = MAX_QUANTITY;
-        else if (quantity <= 0)
-            quantity = 1;
-
-        event.numberValue = quantity;
     }
 
     free(input);
+
+    if (quantity >= MAX_QUANTITY)
+        quantity = MAX_QUANTITY;
+    else if (quantity <= 0)
+        quantity = 1;
+
+    event.numberValue = quantity;
 
     return event;
 }
@@ -668,6 +670,7 @@ MenuEvent showSelectMilkTeaFlavorMenu(CartItem item)
     }
     else if (strcmp(input, "back") == 0)
     {
+        event.id = MENU_EVENT_RESET_PRODUCT;
         historyPop();
     }
     else if (strcmp(input, "none") == 0)
@@ -823,6 +826,7 @@ MenuEvent showSelectCoffeeTypeMenu(CartItem item)
     }
     else if (strcmp(input, "back") == 0)
     {
+        event.id = MENU_EVENT_RESET_PRODUCT;
         historyPop();
     }
 
@@ -845,6 +849,8 @@ MenuEvent showMainMenu(CartItem item)
     printf("|    >  Cart                                                  |\n");
     printf("|    x  Exit                                                  |\n");
     printf("+-------------------------------------------------------------+\n");
+
+    showCurrentOrder(item, 0, 0);
 
     char *input = getInputString("Product Name");
 
@@ -886,6 +892,7 @@ int main()
 
     while (running != 0)
     {
+        int backupQuantity = currentItem.quantity;
 
         MenuEvent event = history[historySize].action(currentItem);
 
@@ -895,29 +902,32 @@ int main()
             running = 0;
             break;
         case MENU_EVENT_SET_PRODUCT_NAME:
-            // currentItem.name = event.stringValue;
             strcpy(currentItem.name, event.stringValue);
             break;
         case MENU_EVENT_SET_FLAVOR:
-            // currentItem.addon = event.stringValue;
             strcpy(currentItem.addon, event.stringValue);
             break;
         case MENU_EVENT_SET_SIZE:
-            // currentItem.size = event.stringValue;
             strcpy(currentItem.size, event.stringValue);
+            // strcpy sets the quantity to 0 for some reason
+            currentItem.quantity = backupQuantity;
             break;
         case MENU_EVENT_SET_QUANTITY:
             currentItem.quantity = event.numberValue;
+
             break;
         case MENU_EVENT_ADD_TO_CART:
             addToCart(currentItem);
             break;
-
+        case MENU_EVENT_RESET_PRODUCT:
+            strcpy(currentItem.name, "");
+            strcpy(currentItem.addon, "");
+            strcpy(currentItem.size, "");
+            currentItem.quantity = 1;
+            break;
         default:
             break;
         }
-
-        // free(event.stringValue);
     }
 
     return 0;
