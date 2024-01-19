@@ -134,9 +134,9 @@ float getProductPrice(const char *name, const char *size)
 
 typedef struct
 {
-    char *name;
-    char *addon;
-    char *size;
+    char name[30];
+    char addon[30];
+    char size[4];
 
     int quantity;
 } CartItem;
@@ -256,7 +256,7 @@ float getCartTotalPrice()
         float subtotal = (float)item.quantity * price;
         float addonSubtotal = 0;
 
-        if (strcmp(item.addon, "None") == 1)
+        if (strcmp(item.addon, "") != 0)
         {
             addonSubtotal = (float)addonPrice * item.quantity;
         }
@@ -282,7 +282,7 @@ void listCartItems()
 
         printf("| %3d | %-32s%-10s %6.2f   x %5d     |%10.2f  |\n", i + 1, item.name, item.size, price, item.quantity, subtotal);
 
-        if (strcmp(item.addon, "None") == 0)
+        if (strcmp(item.addon, "") == 0)
             continue;
 
         float addonSubtotal = (float)addonPrice * item.quantity;
@@ -327,10 +327,10 @@ void showCart()
 
 typedef enum
 {
-    MENU_EVENT_QUIT = -1,
+    MENU_EVENT_NO_EVENT = -1,
+    MENU_EVENT_QUIT,
     MENU_EVENT_SET_PRODUCT_NAME,
     MENU_EVENT_SET_FLAVOR,
-    MENU_EVENT_SET_ADDON,
     MENU_EVENT_SET_SIZE,
     MENU_EVENT_SET_QUANTITY,
     MENU_EVENT_ADD_TO_CART,
@@ -370,7 +370,7 @@ int historyPopUntil(char *name)
     {
         MenuPage menuPage = history[i];
 
-        if (!strcmp(menuPage.name, name))
+        if (strcmp(menuPage.name, name) == 0)
         {
             break;
         }
@@ -391,17 +391,27 @@ void historyPush(MenuPage menuPage)
  *            MENUS             *
  *==============================*/
 
-MenuEvent showMainMenu();
-MenuEvent showSelectCoffeeTypeMenu();
-MenuEvent showSelectHotCoffeeFlavorMenu();
-MenuEvent showSelectIcedCoffeeFlavorMenu();
-MenuEvent showSelectMilkTeaFlavorMenu();
+MenuEvent showMainMenu(CartItem item);
+MenuEvent showSelectCoffeeTypeMenu(CartItem item);
+MenuEvent showSelectHotCoffeeFlavorMenu(CartItem item);
+MenuEvent showSelectHotCoffeeSizeMenu(CartItem item);
+MenuEvent showSelectIcedCoffeeFlavorMenu(CartItem item);
+MenuEvent showSelectIcedCoffeeSizeMenu(CartItem item);
+MenuEvent showSelectMilkTeaFlavorMenu(CartItem item);
+MenuEvent showSelectMilkTeaSizeMenu(CartItem item);
+MenuEvent showSetQuantityMenu(CartItem item);
+MenuEvent showCurrentOrderMenu(CartItem item);
 
 MenuPage mainMenuPage = {"Main Menu", showMainMenu};
 MenuPage coffeeTypePage = {"Coffee Type", showSelectCoffeeTypeMenu};
 MenuPage hotCoffeeFlavorsPage = {"Hot Coffee Flavors", showSelectHotCoffeeFlavorMenu};
+MenuPage hotCoffeeSizesPage = {"Hot Coffee Sizes", showSelectHotCoffeeSizeMenu};
 MenuPage icedCoffeeFlavorsPage = {"Iced Coffee Flavors", showSelectIcedCoffeeFlavorMenu};
+MenuPage icedCoffeeSizesPage = {"Iced Coffee Sizes", showSelectIcedCoffeeSizeMenu};
 MenuPage milkTeaFlavorsPage = {"Milk Tea Flavors", showSelectMilkTeaFlavorMenu};
+MenuPage milkTeaSizesPage = {"Milk Tea Sizes", showSelectMilkTeaSizeMenu};
+MenuPage setQuantityPage = {"Set Quantity", showSetQuantityMenu};
+MenuPage currentOrderPage = {"Current Order", showCurrentOrderMenu};
 
 void showMenuName(const char *menuName)
 {
@@ -410,11 +420,12 @@ void showMenuName(const char *menuName)
     printf("+-------------------------------------------------------------+\n");
 }
 
-void showMenuItems(const char *menuName, const char *menuItems[], unsigned int menuItemCount)
+void showMenuFlavorsItems(const char *menuName, const char *menuItems[], unsigned int menuItemCount)
 {
 
     showMenuName(menuName);
     printf("|                                                             |\n");
+    printf("|      >  None                                                |\n");
     for (int i = 0; i < menuItemCount; i++)
     {
         printf("|      >  %-25s %-25s |\n", menuItems[i], "");
@@ -423,6 +434,41 @@ void showMenuItems(const char *menuName, const char *menuItems[], unsigned int m
     printf("|    >  Cart                                                  |\n");
     printf("|    <  Back                                                  |\n");
     printf("+-------------------------------------------------------------+\n");
+}
+
+void showCurrentOrder(CartItem item, int removeTop, int removeBottom)
+{
+
+    float price = getProductPrice(item.name, item.size);
+    float subtotal = 0;
+    float addonSubtotal = 0;
+
+    if (price < 0)
+        price = 0;
+
+    if (strcmp(item.addon, "") != 0)
+    {
+        addonSubtotal = addonPrice * item.quantity;
+    }
+
+    if (price > 0)
+    {
+        subtotal = price * item.quantity;
+    }
+
+    float total = subtotal + addonSubtotal;
+
+    if (removeTop == 0)
+        printf("+-------------------------------------------------------------+\n");
+
+    printf("|   Current Order:      %36.2f  |\n", total);
+    printf("|    %-14s  %-5s%9.2f   x %5d   = %10.2f  |\n", item.name, item.size, price, item.quantity, subtotal);
+    if (strcmp(item.addon, "") != 0)
+    {
+        printf("|     └ %-15s%-5s %6.2f   x %5d   = %10.2f  |\n", item.addon, "", (float)addonPrice, item.quantity, addonSubtotal);
+    }
+    if (removeBottom == 0)
+        printf("+-------------------------------------------------------------+\n");
 }
 
 int getIntegerInput(const char *label)
@@ -441,23 +487,194 @@ char *getInputString(const char *label)
 
     buffer[strcspn(buffer, "\n")] = 0;
 
-    return strlwr(buffer);
+    // return strlwr(buffer);
+    return strdup(strlwr(buffer));
 }
 
-MenuEvent showSelectMilkTeaFlavorMenu()
+MenuEvent showCurrentOrderMenu(CartItem item)
 {
     MenuEvent event;
 
-    showMenuItems("Milk Flavors", milkTeaFlavors, 10);
+    showMenuName("Current Order");
 
-    const char *input = getInputString("Enter Milk Tea Flavor");
+    char *input = getInputString("Command");
 
-    if (!strcmp(input, "cart"))
+    return event;
+}
+
+MenuEvent showSetQuantityMenu(CartItem item)
+{
+    MenuEvent event;
+    event.id = MENU_EVENT_NO_EVENT;
+
+    int quantity = 1;
+
+    showMenuName("Set Quantity");
+    printf("|                                                             |\n");
+    showCurrentOrder(item, 1, 1);
+    printf("|                                                             |\n");
+    printf("|    >  Next                                                  |\n");
+    printf("|    >  Cart                                                  |\n");
+    printf("|    <  Back                                                  |\n");
+    printf("+-------------------------------------------------------------+\n");
+
+    char *input = getInputString("Quantity");
+
+    if (strcmp(input, "cart") == 0)
     {
     }
-    else if (!strcmp(input, "back"))
+    else if (strcmp(input, "back") == 0)
     {
         historyPop();
+    }
+
+    if (sscanf(input, "%d", &quantity) == 1)
+    {
+        event.id = MENU_EVENT_SET_QUANTITY;
+
+        if (quantity >= MAX_QUANTITY)
+            quantity = MAX_QUANTITY;
+        else if (quantity <= 0)
+            quantity = 1;
+
+        event.numberValue = quantity;
+    }
+
+    free(input);
+
+    return event;
+}
+
+MenuEvent showSelectMilkTeaSizeMenu(CartItem item)
+{
+    MenuEvent event;
+    event.id = MENU_EVENT_NO_EVENT;
+
+    showMenuName("Milk Tea Sizes");
+    printf("|                                                             |\n");
+    for (int i = 0; i < 2; i++)
+    {
+        printf("|      >  %-25s %-25s |\n", milkTeaSizes[i], "");
+    }
+    printf("|                                                             |\n");
+    printf("|    >  Cart                                                  |\n");
+    printf("|    <  Back                                                  |\n");
+    printf("+-------------------------------------------------------------+\n");
+
+    showCurrentOrder(item, 0, 0);
+
+    char *input = getInputString("Enter Size");
+
+    if (strcmp(input, "cart") == 0)
+    {
+    }
+    else if (strcmp(input, "back") == 0)
+    {
+        historyPop();
+    }
+
+    for (int i = 0; i < 2; i++)
+    {
+        char *size = strdup(milkTeaSizes[i]);
+        char *sizeLower = strlwr(size);
+
+        if (strcmp(input, sizeLower) == 0)
+        {
+            historyPush(setQuantityPage);
+            event.id = MENU_EVENT_SET_SIZE;
+            event.stringValue = strdup(milkTeaSizes[i]);
+            free(size);
+            break;
+        }
+    }
+
+    free(input);
+
+    return event;
+}
+
+MenuEvent showSelectIcedCoffeeSizeMenu(CartItem item)
+{
+    MenuEvent event;
+    event.id = MENU_EVENT_NO_EVENT;
+
+    showMenuName("Iced Coffee Sizes");
+    printf("|                                                             |\n");
+    for (int i = 0; i < 3; i++)
+    {
+        printf("|      >  %-25s %-25s |\n", icedCoffeeSizes[i], "");
+    }
+    printf("|                                                             |\n");
+    printf("|    >  Cart                                                  |\n");
+    printf("|    <  Back                                                  |\n");
+    printf("+-------------------------------------------------------------+\n");
+    showCurrentOrder(item, 0, 0);
+
+    char *input = getInputString("Enter Size");
+
+    if (strcmp(input, "cart") == 0)
+    {
+    }
+    else if (strcmp(input, "back") == 0)
+    {
+        historyPop();
+    }
+
+    for (int i = 0; i < 3; i++)
+    {
+        char *size = strdup(icedCoffeeSizes[i]);
+        char *sizeLower = strlwr(size);
+
+        if (strcmp(input, sizeLower) == 0)
+        {
+            historyPush(setQuantityPage);
+            event.id = MENU_EVENT_SET_SIZE;
+            event.stringValue = strdup(icedCoffeeSizes[i]);
+            free(size);
+            break;
+        }
+    }
+
+    free(input);
+
+    return event;
+}
+
+// just here so I can return the MENU_EVENT_SET_SIZE event
+MenuEvent showSelectHotCoffeeSizeMenu(CartItem item)
+{
+
+    historyPop(); // removes itself
+    historyPush(setQuantityPage);
+
+    MenuEvent event;
+    event.id = MENU_EVENT_SET_SIZE;
+    event.stringValue = "";
+    return event;
+}
+
+MenuEvent showSelectMilkTeaFlavorMenu(CartItem item)
+{
+    MenuEvent event;
+    event.id = MENU_EVENT_NO_EVENT;
+
+    showMenuFlavorsItems("Milk Tea Flavors", milkTeaFlavors, 10);
+    showCurrentOrder(item, 0, 0);
+
+    char *input = getInputString("Enter Milk Tea Flavor");
+
+    if (strcmp(input, "cart") == 0)
+    {
+    }
+    else if (strcmp(input, "back") == 0)
+    {
+        historyPop();
+    }
+    else if (strcmp(input, "none") == 0)
+    {
+        historyPush(milkTeaSizesPage);
+        event.id = MENU_EVENT_SET_FLAVOR;
+        event.stringValue = "";
     }
 
     for (int i = 0; i < 10; i++)
@@ -466,32 +683,43 @@ MenuEvent showSelectMilkTeaFlavorMenu()
         char *flavor = strdup(milkTeaFlavors[i]);
         char *flavorLower = strlwr(flavor);
 
-        if (!strcmp(input, flavorLower))
+        if (strcmp(input, flavorLower) == 0)
         {
+            historyPush(milkTeaSizesPage);
             event.id = MENU_EVENT_SET_FLAVOR;
-            event.stringValue = flavor;
+            event.stringValue = strdup(milkTeaFlavors[i]);
             free(flavor);
             break;
         }
     }
 
+    free(input);
+
     return event;
 }
 
-MenuEvent showSelectIcedCoffeeFlavorMenu()
+MenuEvent showSelectIcedCoffeeFlavorMenu(CartItem item)
 {
     MenuEvent event;
+    event.id = MENU_EVENT_NO_EVENT;
 
-    showMenuItems("Iced Coffee Flavors", icedCoffeeFlavors, 11);
+    showMenuFlavorsItems("Iced Coffee Flavors", icedCoffeeFlavors, 11);
+    showCurrentOrder(item, 0, 0);
 
-    const char *input = getInputString("Enter Iced Coffee Flavor");
+    char *input = getInputString("Enter Iced Coffee Flavor");
 
-    if (!strcmp(input, "cart"))
+    if (strcmp(input, "cart") == 0)
     {
     }
-    else if (!strcmp(input, "back"))
+    else if (strcmp(input, "back") == 0)
     {
         historyPop();
+    }
+    else if (strcmp(input, "none") == 0)
+    {
+        historyPush(icedCoffeeSizesPage);
+        event.id = MENU_EVENT_SET_FLAVOR;
+        event.stringValue = "";
     }
 
     for (int i = 0; i < 11; i++)
@@ -500,32 +728,43 @@ MenuEvent showSelectIcedCoffeeFlavorMenu()
         char *flavor = strdup(icedCoffeeFlavors[i]);
         char *flavorLower = strlwr(flavor);
 
-        if (!strcmp(input, flavorLower))
+        if (strcmp(input, flavorLower) == 0)
         {
+            historyPush(icedCoffeeSizesPage);
             event.id = MENU_EVENT_SET_FLAVOR;
-            event.stringValue = flavor;
+            event.stringValue = strdup(icedCoffeeFlavors[i]);
             free(flavor);
             break;
         }
     }
 
+    free(input);
+
     return event;
 }
 
-MenuEvent showSelectHotCoffeeFlavorMenu()
+MenuEvent showSelectHotCoffeeFlavorMenu(CartItem item)
 {
     MenuEvent event;
+    event.id = MENU_EVENT_NO_EVENT;
 
-    showMenuItems("Hot Coffee Flavors", hotCoffeeFlavors, 8);
+    showMenuFlavorsItems("Hot Coffee Flavors", hotCoffeeFlavors, 8);
+    showCurrentOrder(item, 0, 0);
 
-    const char *input = getInputString("Enter Hot Coffee Flavor");
+    char *input = getInputString("Enter Hot Coffee Flavor");
 
-    if (!strcmp(input, "cart"))
+    if (strcmp(input, "cart") == 0)
     {
     }
-    else if (!strcmp(input, "back"))
+    else if (strcmp(input, "back") == 0)
     {
         historyPop();
+    }
+    else if (strcmp(input, "none") == 0)
+    {
+        historyPush(hotCoffeeSizesPage);
+        event.id = MENU_EVENT_SET_FLAVOR;
+        event.stringValue = "";
     }
 
     for (int i = 0; i < 8; i++)
@@ -534,21 +773,25 @@ MenuEvent showSelectHotCoffeeFlavorMenu()
         char *flavor = strdup(hotCoffeeFlavors[i]);
         char *flavorLower = strlwr(flavor);
 
-        if (!strcmp(input, flavorLower))
+        if (strcmp(input, flavorLower) == 0)
         {
+            historyPush(hotCoffeeSizesPage);
             event.id = MENU_EVENT_SET_FLAVOR;
-            event.stringValue = flavor;
+            event.stringValue = strdup(hotCoffeeFlavors[i]);
             free(flavor);
             break;
         }
     }
 
+    free(input);
+
     return event;
 }
 
-MenuEvent showSelectCoffeeTypeMenu()
+MenuEvent showSelectCoffeeTypeMenu(CartItem item)
 {
     MenuEvent event;
+    event.id = MENU_EVENT_NO_EVENT;
 
     showMenuName("Coffee Type");
     printf("|                                                             |\n");
@@ -559,34 +802,39 @@ MenuEvent showSelectCoffeeTypeMenu()
     printf("|    >  Cart                                                  |\n");
     printf("|    <  Back                                                  |\n");
     printf("+-------------------------------------------------------------+\n");
+    showCurrentOrder(item, 0, 0);
 
-    const char *input = getInputString("Product Name");
+    char *input = getInputString("Product Name");
 
-    if (!strcmp(input, "hot"))
+    if (strcmp(input, "hot") == 0)
     {
         historyPush(hotCoffeeFlavorsPage);
         event.id = MENU_EVENT_SET_PRODUCT_NAME;
         event.stringValue = "Hot Coffee";
     }
-    else if (!strcmp(input, "iced"))
+    else if (strcmp(input, "iced") == 0)
     {
         historyPush(icedCoffeeFlavorsPage);
         event.id = MENU_EVENT_SET_PRODUCT_NAME;
         event.stringValue = "Iced Coffee";
     }
-    else if (!strcmp(input, "cart"))
+    else if (strcmp(input, "cart") == 0)
     {
     }
-    else if (!strcmp(input, "back"))
+    else if (strcmp(input, "back") == 0)
     {
         historyPop();
     }
+
+    free(input);
+
     return event;
 }
 
-MenuEvent showMainMenu()
+MenuEvent showMainMenu(CartItem item)
 {
     MenuEvent event;
+    event.id = MENU_EVENT_NO_EVENT;
 
     showMenuName("Yummy Tea Cafe");
     printf("|                                                             |\n");
@@ -598,23 +846,27 @@ MenuEvent showMainMenu()
     printf("|    x  Exit                                                  |\n");
     printf("+-------------------------------------------------------------+\n");
 
-    const char *input = getInputString("Product Name");
+    char *input = getInputString("Product Name");
 
-    if (!strcmp(input, "coffee"))
+    if (strcmp(input, "coffee") == 0)
     {
         historyPush(coffeeTypePage);
     }
-    else if (!strcmp(input, "milk tea"))
+    else if (strcmp(input, "milk tea") == 0)
     {
         historyPush(milkTeaFlavorsPage);
+        event.id = MENU_EVENT_SET_PRODUCT_NAME;
+        event.stringValue = "Milk Tea";
     }
-    else if (!strcmp(input, "cart"))
+    else if (strcmp(input, "cart") == 0)
     {
     }
-    else if (!strcmp(input, "exit"))
+    else if (strcmp(input, "exit") == 0)
     {
         event.id = MENU_EVENT_QUIT;
     }
+
+    free(input);
 
     return event;
 }
@@ -628,18 +880,14 @@ int main()
 
     int running = 1;
 
-    MenuPage mainMenu = {
-        "Main Menu",
-        showMainMenu,
-    };
-    historyPush(mainMenu);
+    historyPush(mainMenuPage);
 
-    CartItem currentItem;
+    CartItem currentItem = {"", "", "", 1};
 
     while (running != 0)
     {
 
-        MenuEvent event = history[historySize].action();
+        MenuEvent event = history[historySize].action(currentItem);
 
         switch (event.id)
         {
@@ -647,16 +895,16 @@ int main()
             running = 0;
             break;
         case MENU_EVENT_SET_PRODUCT_NAME:
-            currentItem.name = event.stringValue;
+            // currentItem.name = event.stringValue;
+            strcpy(currentItem.name, event.stringValue);
             break;
         case MENU_EVENT_SET_FLAVOR:
-            currentItem.name = event.stringValue;
-            break;
-        case MENU_EVENT_SET_ADDON:
-            currentItem.addon = event.stringValue;
+            // currentItem.addon = event.stringValue;
+            strcpy(currentItem.addon, event.stringValue);
             break;
         case MENU_EVENT_SET_SIZE:
-            currentItem.size = event.stringValue;
+            // currentItem.size = event.stringValue;
+            strcpy(currentItem.size, event.stringValue);
             break;
         case MENU_EVENT_SET_QUANTITY:
             currentItem.quantity = event.numberValue;
@@ -668,6 +916,8 @@ int main()
         default:
             break;
         }
+
+        // free(event.stringValue);
     }
 
     return 0;
