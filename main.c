@@ -134,11 +134,11 @@ float getProductPrice(const char *name, const char *size)
 
 typedef struct
 {
+    int quantity;
+
     char name[30];
     char addon[30];
     char size[10];
-
-    int quantity;
 } CartItem;
 
 int cartSize = 0;
@@ -888,11 +888,11 @@ int main()
 
     historyPush(mainMenuPage);
 
-    CartItem currentItem = {"", "", "", 1};
+    CartItem currentItem = {1, "", "", ""};
 
     while (running != 0)
     {
-        int backupQuantity = currentItem.quantity;
+        // int backupQuantity = currentItem.quantity; 
 
         MenuEvent event = history[historySize].action(currentItem);
 
@@ -910,7 +910,10 @@ int main()
         case MENU_EVENT_SET_SIZE:
             strcpy(currentItem.size, event.stringValue);
             // this strcpy sets the quantity to 0 for some reason
-            currentItem.quantity = backupQuantity;
+            // FIXED: the data type order matters in struct putting the int
+            // after the char[] causes the problem.
+            // NOTE TO SELF: put int first in structs
+            // currentItem.quantity = backupQuantity;
             break;
         case MENU_EVENT_SET_QUANTITY:
             currentItem.quantity = event.numberValue;
