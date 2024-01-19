@@ -909,7 +909,7 @@ int main()
             break;
         case MENU_EVENT_SET_SIZE:
             strcpy(currentItem.size, event.stringValue);
-            // strcpy sets the quantity to 0 for some reason
+            // this strcpy sets the quantity to 0 for some reason
             currentItem.quantity = backupQuantity;
             break;
         case MENU_EVENT_SET_QUANTITY:
