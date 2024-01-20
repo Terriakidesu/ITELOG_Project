@@ -137,12 +137,22 @@ typedef struct
 {
     int quantity;
 
-    float cash; // will be only used by the user
-
     char name[30];
     char addon[30];
     char size[10];
 } CartItem;
+
+typedef struct
+{
+    int quantity;
+    int cartProductIndex;
+
+    float cash;
+
+    char name[30];
+    char addon[30];
+    char size[10];
+} UserInfo;
 
 int cartSize = 0;
 CartItem cart[MAX_CART_SIZE];
@@ -398,19 +408,20 @@ void historyPush(MenuPage menuPage)
  *            MENUS             *
  *==============================*/
 
-MenuEvent showMainMenu(CartItem item);
-MenuEvent showSelectCoffeeTypeMenu(CartItem item);
-MenuEvent showSelectHotCoffeeFlavorMenu(CartItem item);
-MenuEvent showSelectHotCoffeeSizeMenu(CartItem item);
-MenuEvent showSelectIcedCoffeeFlavorMenu(CartItem item);
-MenuEvent showSelectIcedCoffeeSizeMenu(CartItem item);
-MenuEvent showSelectMilkTeaFlavorMenu(CartItem item);
-MenuEvent showSelectMilkTeaSizeMenu(CartItem item);
-MenuEvent showSetQuantityMenu(CartItem item);
-MenuEvent showNavigationMenu(CartItem item);
-MenuEvent showPurchaseMenu(CartItem item);
-MenuEvent showReceiptMenu(CartItem item);
-MenuEvent showCartMenu(CartItem item);
+MenuEvent showMainMenu(UserInfo item);
+MenuEvent showSelectCoffeeTypeMenu(UserInfo item);
+MenuEvent showSelectHotCoffeeFlavorMenu(UserInfo item);
+MenuEvent showSelectHotCoffeeSizeMenu(UserInfo item);
+MenuEvent showSelectIcedCoffeeFlavorMenu(UserInfo item);
+MenuEvent showSelectIcedCoffeeSizeMenu(UserInfo item);
+MenuEvent showSelectMilkTeaFlavorMenu(UserInfo item);
+MenuEvent showSelectMilkTeaSizeMenu(UserInfo item);
+MenuEvent showSetQuantityMenu(UserInfo item);
+MenuEvent showNavigationMenu(UserInfo item);
+MenuEvent showPurchaseMenu(UserInfo item);
+MenuEvent showReceiptMenu(UserInfo item);
+MenuEvent showCartMenu(UserInfo item);
+MenuEvent showCartEditMenu(UserInfo item);
 
 MenuPage mainMenuPage = {"Main Menu", showMainMenu};
 MenuPage coffeeTypePage = {"Coffee Type", showSelectCoffeeTypeMenu};
@@ -425,6 +436,7 @@ MenuPage navigationPage = {"Navigation", showNavigationMenu};
 MenuPage purchasePage = {"Purchase", showPurchaseMenu};
 MenuPage receiptPage = {"Receipt", showReceiptMenu};
 MenuPage cartPage = {"Cart", showCartMenu};
+MenuPage cartEditPage = {"Cart Edit", showCartEditMenu};
 
 void clearTerminal()
 {
@@ -462,7 +474,7 @@ void showMenuFlavorsItems(const char *menuName, const char *menuItems[], unsigne
     printf("+-------------------------------------------------------------+\n");
 }
 
-void showCurrentOrder(CartItem item, int removeTop, int removeBottom)
+void showCurrentOrder(UserInfo item, int removeTop, int removeBottom)
 {
 
     float price = getProductPrice(item.name, item.size);
@@ -509,7 +521,14 @@ char *getInputString(const char *label)
     return strdup(strlwr(buffer));
 }
 
-// TODO: cart menu
+MenuEvent showCartEditMenu(CartItem item)
+{
+    MenuEvent event;
+    event.id = MENU_EVENT_NO_EVENT;
+
+    return event;
+}
+
 MenuEvent showCartMenu(CartItem item)
 {
     MenuEvent event;
@@ -524,8 +543,20 @@ MenuEvent showCartMenu(CartItem item)
     printf("|                                                                                    |\n");
     printf("+------------------------------------------------------------------------------------+\n");
 
-    if (strcmp(input, "edit") == 0) {
+    if (strcmp(input, "edit") == 0)
+    {
+        char *inputIndex = getInputString("Product Number");
+        int index = 0;
 
+        if (sscanf(inputIndex, "%d", &index) == 1)
+        {
+        }
+
+        free(inputIndex);
+    }
+    else if (strcmp(input, "back") == 0)
+    {
+        historyPop();
     }
 
     free(input);
@@ -533,7 +564,7 @@ MenuEvent showCartMenu(CartItem item)
     return event;
 }
 
-MenuEvent showReceiptMenu(CartItem item)
+MenuEvent showReceiptMenu(UserInfo item)
 {
     MenuEvent event;
     event.id = MENU_EVENT_NO_EVENT;
@@ -564,7 +595,7 @@ MenuEvent showReceiptMenu(CartItem item)
     return event;
 }
 
-MenuEvent showPurchaseMenu(CartItem item)
+MenuEvent showPurchaseMenu(UserInfo item)
 {
     MenuEvent event;
     event.id = MENU_EVENT_NO_EVENT;
@@ -607,7 +638,7 @@ MenuEvent showPurchaseMenu(CartItem item)
     return event;
 }
 
-MenuEvent showNavigationMenu(CartItem item)
+MenuEvent showNavigationMenu(UserInfo item)
 {
     MenuEvent event;
     event.id = MENU_EVENT_NO_EVENT;
@@ -677,7 +708,7 @@ MenuEvent showNavigationMenu(CartItem item)
     return event;
 }
 
-MenuEvent showSetQuantityMenu(CartItem item)
+MenuEvent showSetQuantityMenu(UserInfo item)
 {
     MenuEvent event;
     event.id = MENU_EVENT_NO_EVENT;
@@ -729,7 +760,7 @@ MenuEvent showSetQuantityMenu(CartItem item)
     return event;
 }
 
-MenuEvent showSelectMilkTeaSizeMenu(CartItem item)
+MenuEvent showSelectMilkTeaSizeMenu(UserInfo item)
 {
     MenuEvent event;
     event.id = MENU_EVENT_NO_EVENT;
@@ -778,7 +809,7 @@ MenuEvent showSelectMilkTeaSizeMenu(CartItem item)
     return event;
 }
 
-MenuEvent showSelectIcedCoffeeSizeMenu(CartItem item)
+MenuEvent showSelectIcedCoffeeSizeMenu(UserInfo item)
 {
     MenuEvent event;
     event.id = MENU_EVENT_NO_EVENT;
@@ -827,7 +858,7 @@ MenuEvent showSelectIcedCoffeeSizeMenu(CartItem item)
 }
 
 // just here so I can return the MENU_EVENT_SET_SIZE event
-MenuEvent showSelectHotCoffeeSizeMenu(CartItem item)
+MenuEvent showSelectHotCoffeeSizeMenu(UserInfo item)
 {
 
     historyPop(); // removes itself
@@ -839,7 +870,7 @@ MenuEvent showSelectHotCoffeeSizeMenu(CartItem item)
     return event;
 }
 
-MenuEvent showSelectMilkTeaFlavorMenu(CartItem item)
+MenuEvent showSelectMilkTeaFlavorMenu(UserInfo item)
 {
     MenuEvent event;
     event.id = MENU_EVENT_NO_EVENT;
@@ -886,7 +917,7 @@ MenuEvent showSelectMilkTeaFlavorMenu(CartItem item)
     return event;
 }
 
-MenuEvent showSelectIcedCoffeeFlavorMenu(CartItem item)
+MenuEvent showSelectIcedCoffeeFlavorMenu(UserInfo item)
 {
     MenuEvent event;
     event.id = MENU_EVENT_NO_EVENT;
@@ -932,7 +963,7 @@ MenuEvent showSelectIcedCoffeeFlavorMenu(CartItem item)
     return event;
 }
 
-MenuEvent showSelectHotCoffeeFlavorMenu(CartItem item)
+MenuEvent showSelectHotCoffeeFlavorMenu(UserInfo item)
 {
     MenuEvent event;
     event.id = MENU_EVENT_NO_EVENT;
@@ -978,7 +1009,7 @@ MenuEvent showSelectHotCoffeeFlavorMenu(CartItem item)
     return event;
 }
 
-MenuEvent showSelectCoffeeTypeMenu(CartItem item)
+MenuEvent showSelectCoffeeTypeMenu(UserInfo item)
 {
     MenuEvent event;
     event.id = MENU_EVENT_NO_EVENT;
@@ -1023,7 +1054,7 @@ MenuEvent showSelectCoffeeTypeMenu(CartItem item)
     return event;
 }
 
-MenuEvent showMainMenu(CartItem item)
+MenuEvent showMainMenu(UserInfo item)
 {
     MenuEvent event;
     event.id = MENU_EVENT_NO_EVENT;
@@ -1077,7 +1108,7 @@ int main()
 
     historyPush(mainMenuPage);
 
-    CartItem currentItem = {1, 0.0, "", "", ""};
+    UserInfo currentItem = {1, -1, 0.0, "", "", ""};
 
     while (running != 0)
     {
@@ -1109,7 +1140,13 @@ int main()
             currentItem.quantity = event.numberValue;
             break;
         case MENU_EVENT_ADD_TO_CART:
-            addToCart(currentItem);
+            CartItem cartItem;
+
+            strcpy(cartItem.name, currentItem.name);
+            strcpy(cartItem.addon, currentItem.addon);
+            strcpy(cartItem.size, currentItem.size);
+            cartItem.quantity = currentItem.quantity;
+            addToCart(cartItem);
             break;
         case MENU_EVENT_SET_CASH:
             currentItem.cash = event.floatValue;
@@ -1119,6 +1156,7 @@ int main()
             strcpy(currentItem.addon, "");
             strcpy(currentItem.size, "");
             currentItem.quantity = 1;
+            currentItem.cartProductIndex = -1;
             currentItem.cash = 0.0;
             break;
         default:
