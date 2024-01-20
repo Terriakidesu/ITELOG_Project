@@ -265,16 +265,16 @@ float getCartTotalPrice()
 
     for (int i = 0; i < cartSize; i++)
     {
-        CartItem info = cart[i];
+        CartItem item = cart[i];
 
-        float price = getProductPrice(info.name, info.size);
+        float price = getProductPrice(item.name, item.size);
 
-        float subtotal = (float)info.quantity * price;
+        float subtotal = (float)item.quantity * price;
         float addonSubtotal = 0;
 
-        if (strcmp(info.addon, "") != 0)
+        if (strcmp(item.addon, "") != 0)
         {
-            addonSubtotal = (float)addonPrice * info.quantity;
+            addonSubtotal = (float)addonPrice * item.quantity;
         }
 
         total += subtotal + addonSubtotal;
@@ -290,19 +290,19 @@ void listCartItems()
     printf("+-----+-----------------------------------------------------------------+------------+\n");
     for (int i = 0; i < cartSize; i++)
     {
-        CartItem info = cart[i];
+        CartItem item = cart[i];
 
-        float price = getProductPrice(info.name, info.size);
+        float price = getProductPrice(item.name, item.size);
 
-        float subtotal = (float)info.quantity * price;
+        float subtotal = (float)item.quantity * price;
 
-        printf("| %3d | %-32s%-10s %6.2f   x %5d     |%10.2f  |\n", i + 1, info.name, info.size, price, info.quantity, subtotal);
+        printf("| %3d | %-32s%-10s %6.2f   x %5d     |%10.2f  |\n", i + 1, item.name, item.size, price, item.quantity, subtotal);
 
-        if (strcmp(info.addon, "") == 0)
+        if (strcmp(item.addon, "") == 0)
             continue;
 
-        float addonSubtotal = (float)addonPrice * info.quantity;
-        printf("|     | └ %-32s%-8s %6.2f   x %5d     |%10.2f  |\n", info.addon, "", (float)addonPrice, info.quantity, addonSubtotal);
+        float addonSubtotal = (float)addonPrice * item.quantity;
+        printf("|     | └ %-32s%-8s %6.2f   x %5d     |%10.2f  |\n", item.addon, "", (float)addonPrice, item.quantity, addonSubtotal);
     }
 
     float total = getCartTotalPrice();
@@ -529,10 +529,15 @@ MenuEvent showCartEditMenu(UserInfo info)
 
     CartItem cartItem = cart[info.cartProductIndex];
 
-    showCurrentOrder(info, 1, 0);
+    showMenuName("Edit Item");
+    printf("|                                                                                    |\n");
+    printf("|    >  Edit                                                                         |\n");
+    printf("|                                                                                    |\n");
+    printf("|    <  Back                                                                         |\n");
+    printf("|                                                                                    |\n");
+    printf("+------------------------------------------------------------------------------------+\n");
 
     char *input = getInputString("Command");
-
 
     return event;
 }
@@ -558,10 +563,11 @@ MenuEvent showCartMenu(UserInfo info)
 
         if (sscanf(inputIndex, "%d", &index) == 1)
         {
-            if (index > 0 && index < cartSize)
+            printf("%d\n", index);
+            if (index > 0 && index <= cartSize)
             {
                 event.id = MENU_EVENT_SET_CART_EDIT_INDEX;
-                event.numberValue = index-1;
+                event.numberValue = index - 1;
                 historyPush(cartEditPage);
             }
         }
@@ -571,6 +577,8 @@ MenuEvent showCartMenu(UserInfo info)
     else if (strcmp(input, "back") == 0)
     {
         historyPop();
+        event.id = MENU_EVENT_SET_CART_EDIT_INDEX;
+        event.numberValue = -1;
     }
 
     free(input);
