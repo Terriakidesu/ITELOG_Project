@@ -401,7 +401,8 @@ MenuEvent showSelectIcedCoffeeSizeMenu(CartItem item);
 MenuEvent showSelectMilkTeaFlavorMenu(CartItem item);
 MenuEvent showSelectMilkTeaSizeMenu(CartItem item);
 MenuEvent showSetQuantityMenu(CartItem item);
-MenuEvent showCurrentOrderMenu(CartItem item);
+MenuEvent showNavigationMenu(CartItem item);
+MenuEvent showCartMenu(CartItem item);
 
 MenuPage mainMenuPage = {"Main Menu", showMainMenu};
 MenuPage coffeeTypePage = {"Coffee Type", showSelectCoffeeTypeMenu};
@@ -412,7 +413,8 @@ MenuPage icedCoffeeSizesPage = {"Iced Coffee Sizes", showSelectIcedCoffeeSizeMen
 MenuPage milkTeaFlavorsPage = {"Milk Tea Flavors", showSelectMilkTeaFlavorMenu};
 MenuPage milkTeaSizesPage = {"Milk Tea Sizes", showSelectMilkTeaSizeMenu};
 MenuPage setQuantityPage = {"Set Quantity", showSetQuantityMenu};
-MenuPage currentOrderPage = {"Current Order", showCurrentOrderMenu};
+MenuPage currentOrderPage = {"Navigation", showNavigationMenu};
+MenuPage cartPage = {"Cart", showCartMenu};
 
 void showMenuName(const char *menuName)
 {
@@ -493,11 +495,20 @@ char *getInputString(const char *label)
     return strdup(strlwr(buffer));
 }
 
-MenuEvent showCurrentOrderMenu(CartItem item)
+MenuEvent showCartMenu(CartItem item) {
+    MenuEvent event;
+    event.id = MENU_EVENT_NO_EVENT;
+
+
+
+    return event;
+}
+
+MenuEvent showNavigationMenu(CartItem item)
 {
     MenuEvent event;
 
-    showMenuName("Current Order");
+    showMenuName("Navigate");
 
     char *input = getInputString("Command");
 
@@ -515,7 +526,7 @@ MenuEvent showSetQuantityMenu(CartItem item)
     printf("|                                                             |\n");
     showCurrentOrder(item, 1, 1);
     printf("|                                                             |\n");
-    printf("|    >  Next                                                  |\n");
+    printf("|    >  Buy                                                   |\n");
     printf("|    >  Cart                                                  |\n");
     printf("|    <  Back                                                  |\n");
     printf("+-------------------------------------------------------------+\n");
@@ -528,6 +539,10 @@ MenuEvent showSetQuantityMenu(CartItem item)
     else if (strcmp(input, "back") == 0)
     {
         historyPop();
+    }
+    else if (strcmp(input, "buy"))
+    {
+        event.id = MENU_EVENT_ADD_TO_CART;
     }
 
     if (sscanf(input, "%d", &quantity) == 1)
@@ -892,7 +907,6 @@ int main()
 
     while (running != 0)
     {
-        // int backupQuantity = currentItem.quantity; 
 
         MenuEvent event = history[historySize].action(currentItem);
 
@@ -912,7 +926,7 @@ int main()
             // this strcpy sets the quantity to 0 for some reason
             // FIXED: the data type order matters in struct putting the int
             // after the char[] causes the problem.
-            // NOTE TO SELF: put int first in structs
+            // NOTE TO SELF: put ints first in structs
             // currentItem.quantity = backupQuantity;
             break;
         case MENU_EVENT_SET_QUANTITY:
