@@ -368,6 +368,7 @@ int historyPop()
 int historyPopUntil(char *name)
 {
     MenuPage menuPage;
+    menuPage.name = ""; // prevents Segmentation Error
 
     while (strcmp(menuPage.name, name) != 0)
     {
@@ -420,6 +421,13 @@ void showMenuName(const char *menuName)
     printf("+-------------------------------------------------------------+\n");
 }
 
+void cartChoiceDisplay()
+{
+
+    //+----/--////--/-///-/////-/-//////--////////////-/-------------+
+    printf("|    >  Cart  [ %3d Items , Total:  %12.2f ]            |\n", cartSize, getCartTotalPrice());
+}
+
 void showMenuFlavorsItems(const char *menuName, const char *menuItems[], unsigned int menuItemCount)
 {
 
@@ -431,7 +439,7 @@ void showMenuFlavorsItems(const char *menuName, const char *menuItems[], unsigne
         printf("|      >  %-25s %-25s |\n", menuItems[i], "");
     }
     printf("|                                                             |\n");
-    printf("|    >  Cart                                                  |\n");
+    cartChoiceDisplay();
     printf("|    <  Back                                                  |\n");
     printf("+-------------------------------------------------------------+\n");
 }
@@ -516,7 +524,7 @@ MenuEvent showNavigationMenu(CartItem item)
     printf("|       << Flavor    -   Select different flavor              |\n");
     printf("|       << Size      -   Select different size                |\n");
     printf("|                                                             |\n");
-    printf("|    >  Cart                                                  |\n");
+    cartChoiceDisplay();
     printf("|    <  Back                                                  |\n");
     printf("+-------------------------------------------------------------+\n");
 
@@ -573,7 +581,7 @@ MenuEvent showSetQuantityMenu(CartItem item)
     showCurrentOrder(item, 1, 1);
     printf("|                                                             |\n");
     printf("|    >  Buy                                                   |\n");
-    printf("|    >  Cart                                                  |\n");
+    cartChoiceDisplay();
     printf("|    <  Back                                                  |\n");
     printf("+-------------------------------------------------------------+\n");
 
@@ -623,7 +631,7 @@ MenuEvent showSelectMilkTeaSizeMenu(CartItem item)
         printf("|      >  %-25s %-25s |\n", milkTeaSizes[i], "");
     }
     printf("|                                                             |\n");
-    printf("|    >  Cart                                                  |\n");
+    cartChoiceDisplay();
     printf("|    <  Back                                                  |\n");
     printf("+-------------------------------------------------------------+\n");
 
@@ -671,7 +679,7 @@ MenuEvent showSelectIcedCoffeeSizeMenu(CartItem item)
         printf("|      >  %-25s %-25s |\n", icedCoffeeSizes[i], "");
     }
     printf("|                                                             |\n");
-    printf("|    >  Cart                                                  |\n");
+    cartChoiceDisplay();
     printf("|    <  Back                                                  |\n");
     printf("+-------------------------------------------------------------+\n");
     showCurrentOrder(item, 0, 0);
@@ -866,7 +874,7 @@ MenuEvent showSelectCoffeeTypeMenu(CartItem item)
     printf("|      >  Hot                                                 |\n");
     printf("|      >  Iced                                                |\n");
     printf("|                                                             |\n");
-    printf("|    >  Cart                                                  |\n");
+    cartChoiceDisplay();
     printf("|    <  Back                                                  |\n");
     printf("+-------------------------------------------------------------+\n");
     showCurrentOrder(item, 0, 0);
@@ -910,7 +918,7 @@ MenuEvent showMainMenu(CartItem item)
     printf("|      >  Coffee                                              |\n");
     printf("|      >  Milk Tea                                            |\n");
     printf("|                                                             |\n");
-    printf("|    >  Cart                                                  |\n");
+    cartChoiceDisplay();
     printf("|    x  Exit                                                  |\n");
     printf("+-------------------------------------------------------------+\n");
 
