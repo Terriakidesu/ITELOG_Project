@@ -509,6 +509,8 @@ char *getInputString(const char *label)
     return strdup(strlwr(buffer));
 }
 
+
+// TODO: cart menu
 MenuEvent showCartMenu(CartItem item)
 {
     MenuEvent event;
