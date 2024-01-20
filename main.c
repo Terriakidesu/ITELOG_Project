@@ -367,14 +367,11 @@ int historyPop()
 
 int historyPopUntil(char *name)
 {
-    for (int i = historySize - 1; i > 0; i--)
-    {
-        MenuPage menuPage = history[i];
+    MenuPage menuPage;
 
-        if (strcmp(menuPage.name, name) == 0)
-        {
-            break;
-        }
+    while (strcmp(menuPage.name, name) != 0)
+    {
+        menuPage = history[historySize - 1];
 
         historyPop();
     }
@@ -413,7 +410,7 @@ MenuPage icedCoffeeSizesPage = {"Iced Coffee Sizes", showSelectIcedCoffeeSizeMen
 MenuPage milkTeaFlavorsPage = {"Milk Tea Flavors", showSelectMilkTeaFlavorMenu};
 MenuPage milkTeaSizesPage = {"Milk Tea Sizes", showSelectMilkTeaSizeMenu};
 MenuPage setQuantityPage = {"Set Quantity", showSetQuantityMenu};
-MenuPage currentOrderPage = {"Navigation", showNavigationMenu};
+MenuPage navigationPage = {"Navigation", showNavigationMenu};
 MenuPage cartPage = {"Cart", showCartMenu};
 
 void showMenuName(const char *menuName)
@@ -495,11 +492,10 @@ char *getInputString(const char *label)
     return strdup(strlwr(buffer));
 }
 
-MenuEvent showCartMenu(CartItem item) {
+MenuEvent showCartMenu(CartItem item)
+{
     MenuEvent event;
     event.id = MENU_EVENT_NO_EVENT;
-
-
 
     return event;
 }
@@ -507,10 +503,60 @@ MenuEvent showCartMenu(CartItem item) {
 MenuEvent showNavigationMenu(CartItem item)
 {
     MenuEvent event;
+    event.id = MENU_EVENT_NO_EVENT;
 
-    showMenuName("Navigate");
+    showMenuName("Navigate To");
+    printf("|                                                             |\n");
+    printf("|    Added to cart, buy another?                              |\n");
+    printf("|       << Start     -   Select different product             |\n");
+    if (strcmp(item.name, "Hot Coffee") == 0 || strcmp(item.name, "Iced Coffee") == 0)
+    {
+        printf("|       << Type      -   Select different coffee type         |\n");
+    }
+    printf("|       << Flavor    -   Select different flavor              |\n");
+    printf("|       << Size      -   Select different size                |\n");
+    printf("|                                                             |\n");
+    printf("|    >  Cart                                                  |\n");
+    printf("|    <  Back                                                  |\n");
+    printf("+-------------------------------------------------------------+\n");
 
     char *input = getInputString("Command");
+
+    if (strcmp(input, "back") == 0)
+    {
+        historyPop();
+    }
+    else if (strcmp(input, "start") == 0)
+    {
+        historyPopUntil("Main Menu");
+        event.id = MENU_EVENT_RESET_PRODUCT;
+    }
+    else if (strcmp(input, "type") == 0)
+    {
+        if (strcmp(item.name, "Hot Coffee") == 0 || strcmp(item.name, "Iced Coffee") == 0)
+        {
+            historyPopUntil("Coffee Type");
+        }
+    }
+    else if (strcmp(input, "flavor") == 0)
+    {
+        char flavorPageName[30];
+        strcpy(flavorPageName, item.name);
+        strcat(flavorPageName, " Flavors");
+
+        historyPopUntil(flavorPageName);
+    }
+    else if (strcmp(input, "size") == 0)
+    {
+        char sizePageName[30];
+        strcpy(sizePageName, item.name);
+        strcat(sizePageName, " Sizes");
+
+        historyPopUntil(sizePageName);
+    }
+    else if (strcmp(input, "cart") == 0)
+    {
+    }
 
     return event;
 }
@@ -540,9 +586,10 @@ MenuEvent showSetQuantityMenu(CartItem item)
     {
         historyPop();
     }
-    else if (strcmp(input, "buy"))
+    else if (strcmp(input, "buy") == 0)
     {
         event.id = MENU_EVENT_ADD_TO_CART;
+        historyPush(navigationPage);
     }
 
     if (sscanf(input, "%d", &quantity) == 1)
@@ -558,6 +605,8 @@ MenuEvent showSetQuantityMenu(CartItem item)
         quantity = 1;
 
     event.numberValue = quantity;
+
+    // free(input);
 
     return event;
 }
