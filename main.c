@@ -197,6 +197,9 @@ void addToCart(CartItem cartItem)
     else
     {
         cart[duplicate].quantity += cartItem.quantity;
+
+        if (cart[duplicate].quantity > MAX_QUANTITY)
+            cart[duplicate].quantity = MAX_QUANTITY;
     }
 }
 
@@ -414,6 +417,14 @@ MenuPage setQuantityPage = {"Set Quantity", showSetQuantityMenu};
 MenuPage navigationPage = {"Navigation", showNavigationMenu};
 MenuPage cartPage = {"Cart", showCartMenu};
 
+void clearTerminal()
+{
+    for (int i = 0; i < 50; i++)
+    {
+        printf("\n");
+    }
+}
+
 void showMenuName(const char *menuName)
 {
     printf("+-------------------------------------------------------------+\n");
@@ -423,8 +434,6 @@ void showMenuName(const char *menuName)
 
 void cartChoiceDisplay()
 {
-
-    //+----/--////--/-///-/////-/-//////--////////////-/-------------+
     printf("|    >  Cart  [ %3d Items , Total:  %12.2f ]            |\n", cartSize, getCartTotalPrice());
 }
 
@@ -628,7 +637,7 @@ MenuEvent showSelectMilkTeaSizeMenu(CartItem item)
     printf("|                                                             |\n");
     for (int i = 0; i < 2; i++)
     {
-        printf("|      >  %-25s %-25s |\n", milkTeaSizes[i], "");
+        printf("|      >  %-5s  -   %6.2f                                   |\n", milkTeaSizes[i], milkTeaPrices[i]);
     }
     printf("|                                                             |\n");
     cartChoiceDisplay();
@@ -676,7 +685,7 @@ MenuEvent showSelectIcedCoffeeSizeMenu(CartItem item)
     printf("|                                                             |\n");
     for (int i = 0; i < 3; i++)
     {
-        printf("|      >  %-25s %-25s |\n", icedCoffeeSizes[i], "");
+        printf("|      >  %-5s  -   %6.2f                                   |\n", icedCoffeeSizes[i], icedCoffeePrices[i]);
     }
     printf("|                                                             |\n");
     cartChoiceDisplay();
@@ -964,6 +973,8 @@ int main()
 
     while (running != 0)
     {
+
+        clearTerminal();
 
         MenuEvent event = history[historySize].action(currentItem);
 
