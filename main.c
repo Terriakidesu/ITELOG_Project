@@ -943,6 +943,9 @@ MenuEvent showNavigationMenu(UserInfo info)
     }
     else if (strcmp(input, "type") == 0)
     {
+        event.id = MENU_EVENT_SET_QUANTITY;
+        event.numberValue = 1;
+        
         if (strcmp(info.name, "Hot Coffee") == 0 || strcmp(info.name, "Iced Coffee") == 0)
         {
             historyPopUntil("Coffee Type");
@@ -950,6 +953,9 @@ MenuEvent showNavigationMenu(UserInfo info)
     }
     else if (strcmp(input, "flavor") == 0)
     {
+        event.id = MENU_EVENT_SET_QUANTITY;
+        event.numberValue = 1;
+
         char flavorPageName[30];
         strcpy(flavorPageName, info.name);
         strcat(flavorPageName, " Flavors");
@@ -958,6 +964,9 @@ MenuEvent showNavigationMenu(UserInfo info)
     }
     else if (strcmp(input, "size") == 0)
     {
+        event.id = MENU_EVENT_SET_QUANTITY;
+        event.numberValue = 1;
+        
         char sizePageName[30];
         strcpy(sizePageName, info.name);
         strcat(sizePageName, " Sizes");
