@@ -11,7 +11,7 @@
  *          PRODUCTS            *
  *==============================*/
 
-const int addonPrice = 10.0;
+const float addonPrice = 10.0;
 
 const char *hotCoffeeFlavors[] = {
     "Vanilla",
@@ -274,7 +274,7 @@ float getCartTotalPrice()
 
         if (strcmp(item.addon, "") != 0)
         {
-            addonSubtotal = (float)addonPrice * item.quantity;
+            addonSubtotal = addonPrice * item.quantity;
         }
 
         total += subtotal + addonSubtotal;
@@ -301,8 +301,8 @@ void listCartItems()
         if (strcmp(item.addon, "") == 0)
             continue;
 
-        float addonSubtotal = (float)addonPrice * item.quantity;
-        printf("|     | └ %-32s%-8s %6.2f   x %5d     |%10.2f  |\n", item.addon, "", (float)addonPrice, item.quantity, addonSubtotal);
+        float addonSubtotal = addonPrice * item.quantity;
+        printf("|     | └ %-32s%-8s %6.2f   x %5d     |%10.2f  |\n", item.addon, "", addonPrice, item.quantity, addonSubtotal);
     }
 
     float total = getCartTotalPrice();
@@ -505,10 +505,19 @@ void showCurrentOrder(UserInfo info, int removeTop, int removeBottom)
     if (strcmp(info.addon, "") != 0)
     {
 
-        printf("|   └ %-22s    %7.2f x %2d      %10.2f  |\n", info.addon, (float)addonPrice, info.quantity, addonSubtotal);
+        printf("|   └ %-22s    %7.2f x %2d      %10.2f  |\n", info.addon, addonPrice, info.quantity, addonSubtotal);
     }
     if (removeBottom == 0)
         printf("+-------------------------------------------------------------+\n");
+}
+
+int getInputInteger(const char *label)
+{
+    int num;
+    printf("  Enter %s > ", label);
+    scanf("%d", &num);
+
+    return num;
 }
 
 char *getInputString(const char *label)
@@ -527,17 +536,77 @@ MenuEvent showCartEditMenu(UserInfo info)
     MenuEvent event;
     event.id = MENU_EVENT_NO_EVENT;
 
-    CartItem cartItem = cart[info.cartProductIndex];
+    CartItem item = cart[info.cartProductIndex];
 
-    showMenuName("Edit Item");
+    float price = getProductPrice(item.name, item.size);
+    float subtotal = price * item.quantity;
+    float addonSubtotal = 0;
+
+    if (strcmp(item.addon, "") != 0)
+        addonSubtotal = addonPrice * item.quantity;
+
+    float total = subtotal + addonSubtotal;
+
+    printf("+------------------------------------------------------------------------------------+\n");
+    printf("| > Edit Item                                                                        |\n");
+    printf("+------------------------------------------------------------------------------------+\n");
     printf("|                                                                                    |\n");
-    printf("|    >  Edit                                                                         |\n");
+    printf("|     Item                                                                           |\n");
+    printf("|       └ %-15s            %4s            %10.2f  x  %2d %13.2f |\n", item.name, item.size, price, item.quantity, subtotal);
+    if (strcmp(item.addon, "") != 0)
+        printf("|         └ %-25s                %10.2f  x  %2d %13.2f |\n", item.addon, addonPrice, item.quantity, addonSubtotal);
+    printf("|                                                              Price:  %13.2f |\n", total);
+    printf("|                                                                                    |\n");
+    printf("|     Edit Commands                                                                  |\n");
+    if (strcmp(item.name, "Hot Coffee") == 0)
+    {
+        printf("|                 > Flavor           > Quantity           > Remove                   |\n");
+    }
+    else
+    {
+        printf("|          > Flavor           > Size           > Quantity           > Remove         |\n");
+    }
     printf("|                                                                                    |\n");
     printf("|    <  Back                                                                         |\n");
     printf("|                                                                                    |\n");
     printf("+------------------------------------------------------------------------------------+\n");
 
     char *input = getInputString("Command");
+
+    if (strcmp(input, "back") == 0)
+    {
+
+        historyPop();
+    }
+    else if (strcmp(input, "remove") == 0)
+    {
+        char *inputAgree = getInputString("choice: Are you sure? (y/N)");
+
+        if (strcmp(inputAgree, "y") == 0 || strcmp(inputAgree, "yes") == 0)
+        {
+            removeFromCart(info.cartProductIndex);
+            event.id = MENU_EVENT_SET_CART_EDIT_INDEX;
+            historyPop();
+        }
+
+        free(inputAgree);
+    }
+    else if (strcmp(input, "quantity") == 0)
+    {
+        int quantity = -1;
+
+        while (quantity < 0)
+        {
+            quantity = getInputInteger("Quantity (Max 99)");
+
+            if (quantity > MAX_QUANTITY)
+                quantity = MAX_QUANTITY;
+
+            cart[info.cartProductIndex].quantity = quantity;
+        }
+    }
+
+    free(input);
 
     return event;
 }
@@ -549,7 +618,7 @@ MenuEvent showCartMenu(UserInfo info)
 
     showCart();
     printf("|                                                                                    |\n");
-    printf("|    >  Edit                                                                         |\n");
+    printf("|    >  Edit -  Edit an item                                                         |\n");
     printf("|    <  Back                                                                         |\n");
     printf("|                                                                                    |\n");
     printf("+------------------------------------------------------------------------------------+\n");
@@ -558,21 +627,32 @@ MenuEvent showCartMenu(UserInfo info)
 
     if (strcmp(input, "edit") == 0)
     {
-        char *inputIndex = getInputString("Product Number");
-        int index = 0;
-
-        if (sscanf(inputIndex, "%d", &index) == 1)
+        while (1) // infinite loop
         {
-            printf("%d\n", index);
-            if (index > 0 && index <= cartSize)
-            {
-                event.id = MENU_EVENT_SET_CART_EDIT_INDEX;
-                event.numberValue = index - 1;
-                historyPush(cartEditPage);
-            }
-        }
+            char *inputIndex = getInputString("Product Number (-1 to exit)");
+            int index = 0;
 
-        free(inputIndex);
+            if (sscanf(inputIndex, "%d", &index) == 1)
+            {
+                if (index > 0 && index <= cartSize)
+                {
+                    event.id = MENU_EVENT_SET_CART_EDIT_INDEX;
+                    event.numberValue = index - 1;
+                    historyPush(cartEditPage);
+                    break;
+                }
+                else if (index == -1)
+                {
+                    break;
+                }
+                else
+                {
+                    printf("       ERROR!: Invalid Input\n");
+                }
+            }
+
+            free(inputIndex);
+        }
     }
     else if (strcmp(input, "back") == 0)
     {
