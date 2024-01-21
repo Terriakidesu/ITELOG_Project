@@ -511,6 +511,51 @@ void showCurrentOrder(UserInfo info, int removeTop, int removeBottom)
         printf("+-------------------------------------------------------------+\n");
 }
 
+char *isValidFlavor(const char *flavor, const char *flavors[], unsigned int count)
+{
+    char *isValid = "Invalid";
+
+    for (int i = 0; i < count; i++)
+    {
+        char *cflavor = strdup(flavors[i]);
+        char *flavorLower = strlwr(cflavor);
+
+        if (strcmp(flavor, flavorLower) == 0)
+        {
+            isValid = strdup(flavors[i]);
+            free(cflavor);
+            break;
+        }
+    }
+
+    if (strcmp(flavor, "none") == 0)
+    {
+        isValid = "";
+    }
+
+    return isValid;
+}
+
+char *isValidSize(const char *size, const char *sizes[], unsigned int count)
+{
+    char *isValid = "Invalid";
+
+    for (int i = 0; i < count; i++)
+    {
+        char *csize = strdup(sizes[i]);
+        char *sizeLower = strlwr(csize);
+
+        if (strcmp(size, sizeLower) == 0)
+        {
+            isValid = strdup(sizes[i]);
+            free(csize);
+            break;
+        }
+    }
+
+    return isValid;
+}
+
 int getInputInteger(const char *label)
 {
     int num;
@@ -601,9 +646,121 @@ MenuEvent showCartEditMenu(UserInfo info)
 
             if (quantity > MAX_QUANTITY)
                 quantity = MAX_QUANTITY;
+            if (quantity <= 0)
+                quantity = 1;
 
             cart[info.cartProductIndex].quantity = quantity;
         }
+    }
+    else if (strcmp(input, "flavor") == 0)
+    {
+        if (strcmp(item.name, "Hot Coffee") == 0)
+        {
+            showMenuName("Hot Coffee Flavors");
+            printf("|                                                             |\n");
+            printf("|      >  None                                                |\n");
+            for (int i = 0; i < 11; i++)
+            {
+                printf("|      >  %-25s %-25s |\n", hotCoffeeFlavors[i], "");
+            }
+            printf("|                                                             |\n");
+            printf("+-------------------------------------------------------------+\n");
+        }
+        else if (strcmp(item.name, "Iced Coffee") == 0)
+        {
+            showMenuName("Iced Coffee Flavors");
+            printf("|                                                             |\n");
+            printf("|      >  None                                                |\n");
+            for (int i = 0; i < 11; i++)
+            {
+                printf("|      >  %-25s %-25s |\n", icedCoffeeFlavors[i], "");
+            }
+            printf("|                                                             |\n");
+        }
+        else if (strcmp(item.name, "Milk Tea") == 0)
+        {
+            showMenuName("Milk Tea Flavors");
+            printf("|                                                             |\n");
+            printf("|      >  None                                                |\n");
+            for (int i = 0; i < 10; i++)
+            {
+                printf("|      >  %-25s %-25s |\n", milkTeaFlavors[i], "");
+            }
+            printf("|                                                             |\n");
+        }
+
+        char *isValid = "Invalid";
+
+        do
+        {
+            char *inputFlavor = getInputString("Flavor");
+
+            if (strcmp(item.name, "Hot Coffee") == 0)
+            {
+                isValid = isValidFlavor(inputFlavor, hotCoffeeFlavors, 8);
+            }
+            else if (strcmp(item.name, "Iced Coffee") == 0)
+            {
+                isValid = isValidFlavor(inputFlavor, icedCoffeeFlavors, 11);
+            }
+            else if (strcmp(item.name, "Milk Tea") == 0)
+            {
+                isValid = isValidFlavor(inputFlavor, milkTeaFlavors, 10);
+            }
+
+            free(inputFlavor);
+        } while (strcmp(isValid, "Invalid") == 0);
+
+        strcpy(cart[info.cartProductIndex].addon, isValid);
+
+        free(isValid);
+    }
+    else if (strcmp(input, "size") == 0)
+    {
+        if (strcmp(item.name, "Iced Coffee") == 0)
+        {
+            showMenuName("Iced Coffee Sizes");
+            printf("|                                                             |\n");
+            for (int i = 0; i < 3; i++)
+            {
+                printf("|      >  %-5s  -   %6.2f                                   |\n", icedCoffeeSizes[i], icedCoffeePrices[i]);
+            }
+            printf("|                                                             |\n");
+            printf("+-------------------------------------------------------------+\n");
+        }
+        else if (strcmp(item.name, "Milk Tea") == 0)
+        {
+            showMenuName("Milk Tea Sizes");
+            printf("|                                                             |\n");
+            for (int i = 0; i < 2; i++)
+            {
+                printf("|      >  %-5s  -   %6.2f                                   |\n", milkTeaSizes[i], milkTeaPrices[i]);
+            }
+            printf("|                                                             |\n");
+            printf("+-------------------------------------------------------------+\n");
+        }
+
+        char *isValid = "Invalid";
+
+        do
+        {
+            char *inputSize = getInputString("Size");
+
+            if (strcmp(item.name, "Iced Coffee") == 0)
+            {
+                isValid = isValidSize(inputSize, icedCoffeeSizes, 3);
+            }
+            else if (strcmp(item.name, "Milk Tea") == 0)
+            {
+                isValid = isValidSize(inputSize, milkTeaSizes, 2);
+            }
+
+            free(inputSize);
+        } while (strcmp(isValid, "Invalid") == 0);
+
+        strcpy(cart[info.cartProductIndex].size, isValid);
+
+        free(isValid);
     }
 
     free(input);
@@ -618,7 +775,8 @@ MenuEvent showCartMenu(UserInfo info)
 
     showCart();
     printf("|                                                                                    |\n");
-    printf("|    >  Edit -  Edit an item                                                         |\n");
+    printf("|    >  Purchase  -  Purchase everything                                             |\n");
+    printf("|    >  Edit      -  Edit an item                                                    |\n");
     printf("|    <  Back                                                                         |\n");
     printf("|                                                                                    |\n");
     printf("+------------------------------------------------------------------------------------+\n");
@@ -660,6 +818,10 @@ MenuEvent showCartMenu(UserInfo info)
         event.id = MENU_EVENT_SET_CART_EDIT_INDEX;
         event.numberValue = -1;
     }
+    else if (strcmp(input, "purchase") == 0)
+    {
+        historyPush(purchasePage);
+    }
 
     free(input);
 
@@ -672,8 +834,6 @@ MenuEvent showReceiptMenu(UserInfo info)
     event.id = MENU_EVENT_NO_EVENT;
 
     showReceipt(info.cash);
-
-    char *input = getInputString("Cash");
     printf("|                                                                                    |\n");
     printf("|   Grateful for your business!                                                      |\n");
     printf("|                                                                                    |\n");
@@ -681,6 +841,8 @@ MenuEvent showReceiptMenu(UserInfo info)
     printf("|    x  Exit                                                                         |\n");
     printf("|                                                                                    |\n");
     printf("+------------------------------------------------------------------------------------+\n");
+
+    char *input = getInputString("Command");
 
     if (strcmp(input, "restart") == 0)
     {
@@ -701,6 +863,12 @@ MenuEvent showPurchaseMenu(UserInfo info)
 {
     MenuEvent event;
     event.id = MENU_EVENT_NO_EVENT;
+
+    if (cartSize <= 0)
+    {
+        historyPop();
+        return event;
+    }
 
     float change = showReceipt(info.cash);
     printf("|                                                                                    |\n");
@@ -1127,7 +1295,7 @@ MenuEvent showSelectCoffeeTypeMenu(UserInfo info)
     printf("+-------------------------------------------------------------+\n");
     showCurrentOrder(info, 0, 0);
 
-    char *input = getInputString("Product Name");
+    char *input = getInputString("Coffee Type");
 
     if (strcmp(input, "hot") == 0)
     {
