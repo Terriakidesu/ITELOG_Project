@@ -38,14 +38,6 @@ const char *icedCoffeeFlavors[] = {
     "Matcha",
 };
 
-const char *coffeeAddons[] = {
-    "Milk",
-    "Cream",
-    "Sweeteners",
-    "Cinnamon",
-    "Flavored Syrups",
-};
-
 const char *icedCoffeeSizes[] = {
     "12oz",
     "18oz",
@@ -71,15 +63,6 @@ const char *milkTeaFlavors[] = {
     "Pearl Milk Tea",
     "Honey",
     "Cookies and Cream",
-};
-
-const char *milkTeaAddons[] = {
-    "Tapioca Pearls",
-    "Egg Pudding",
-    "Creamy Custard",
-    "Popping Boba",
-    "Oreo",
-    "Chocolate Pudding",
 };
 
 const char *milkTeaSizes[] = {
