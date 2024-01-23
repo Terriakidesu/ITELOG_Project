@@ -176,7 +176,7 @@ CartItem cart[MAX_CART_SIZE];
 /**
  * Gets the Item's full name.
  * 
- * Merges the `name`,`flavor`, and `size` into a single string.`
+ * Merges the `name`,`flavor`, and `size` into a single string.
  *
  * @param cartItem the item you want to get the full name
  *
