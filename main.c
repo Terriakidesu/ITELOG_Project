@@ -138,11 +138,12 @@ typedef struct
 typedef struct
 {
     int quantity;
+    // the index of the product you want to edit
     int cartProductIndex;
 
     float cash;
 
-    // The current oreder is stored here
+    // The current order is stored here
     char name[30];
     char flavor[30];
     char size[10];
