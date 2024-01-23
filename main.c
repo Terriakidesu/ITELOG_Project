@@ -1,9 +1,15 @@
+/**
+ * This is an programming project for the ITELOG subject.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_HISTORY_STACK 50
-#define MAX_CART_SIZE 500
+// Define constants
+
+#define MAX_HISTORY_STACK 25
+#define MAX_CART_SIZE 300
 #define MAX_QUANTITY 99
 #define MAX_CASH 99999999
 
@@ -114,6 +120,9 @@ float getProductPrice(const char *name, const char *size)
  *             CART             *
  *==============================*/
 
+/**
+ * The object for storing the cart item
+*/
 typedef struct
 {
     int quantity;
@@ -123,6 +132,9 @@ typedef struct
     char size[10];
 } CartItem;
 
+/**
+ * The object for storing the user info and currently ordering item
+*/
 typedef struct
 {
     int quantity;
@@ -130,6 +142,7 @@ typedef struct
 
     float cash;
 
+    // The current oreder is stored here
     char name[30];
     char flavor[30];
     char size[10];
@@ -138,7 +151,13 @@ typedef struct
 int cartSize = 0;
 CartItem cart[MAX_CART_SIZE];
 
-char *getProductFullName(CartItem cartItem)
+/**
+ * Gets the Item's full name.
+ *
+ * @param cartItem the item you want to get the full name
+ *
+ */
+char *getItemFullName(CartItem cartItem)
 {
     char *fullName = malloc(strlen(cartItem.name) + strlen(cartItem.flavor) + strlen(cartItem.size) + 1);
 
@@ -149,12 +168,21 @@ char *getProductFullName(CartItem cartItem)
     return fullName;
 }
 
+/**
+ * Find the item index by using the name
+ *
+ * @param name the item's full name
+ *
+ * @return
+ * The index of the item. if not found returns -1.
+ */
 int findItemIndexByName(const char *name)
 {
     int index = -1;
     for (int i = 0; i < cartSize; i++)
     {
-        char *productName = getProductFullName(cart[i]);
+
+        char *productName = getItemFullName(cart[i]);
         if (strcmp(productName, name) == 0)
         {
             free(productName);
@@ -168,6 +196,11 @@ int findItemIndexByName(const char *name)
     return index;
 }
 
+/**
+ * Add the item to the cart
+ *
+ * @param cartItem the item to add
+ */
 void addToCart(CartItem cartItem)
 {
 
@@ -177,7 +210,7 @@ void addToCart(CartItem cartItem)
     if (cartItem.quantity > MAX_QUANTITY)
         cartItem.quantity = MAX_QUANTITY;
 
-    int duplicate = findItemIndexByName(getProductFullName(cartItem));
+    int duplicate = findItemIndexByName(getItemFullName(cartItem));
 
     if (duplicate == -1)
     {
@@ -197,6 +230,11 @@ void addToCart(CartItem cartItem)
     }
 }
 
+/**
+ * Removes the item from the cart using the index
+ *
+ * @param index the item index
+ */
 void removeFromCart(int index)
 {
     if (index >= 0 && index < cartSize)
@@ -211,6 +249,11 @@ void removeFromCart(int index)
     }
 }
 
+/***
+ * Removes the item from the cart using the name
+ *
+ * @param name the item's full name
+ */
 void removeFromCartByName(const char *name)
 {
     int index = findItemIndexByName(name);
@@ -221,18 +264,25 @@ void removeFromCartByName(const char *name)
     }
 }
 
+/**
+ * Sets the item from `index` to the desired quantity.
+ *
+ * @param index the item index
+ * @param quantity the desired quantity (0 - `MAX_QUANTITY`). 0 removes the item from the cart.
+ */
 void setCartItemQuantityByIndex(int index, int quantity)
 {
 
     if (index >= 0 && index < cartSize)
     {
-
+        // removes the item when the quantity is 0.
         if (quantity <= 0)
         {
             removeFromCart(index);
             return;
         }
 
+        // limits the quantity
         if (quantity > MAX_QUANTITY)
             quantity = MAX_QUANTITY;
 
@@ -240,6 +290,12 @@ void setCartItemQuantityByIndex(int index, int quantity)
     }
 }
 
+/**
+ * Gets the total price of the cart.
+ *
+ * @return
+ * The price of all the items in the cart
+ */
 float getCartTotalPrice()
 {
     float total;
@@ -258,6 +314,9 @@ float getCartTotalPrice()
     return total;
 }
 
+/**
+ * Lists all the items in the cart.
+ */
 void listCartItems()
 {
     printf("+-----+-----------------------------------------------------------------+------------+\n");
@@ -280,6 +339,14 @@ void listCartItems()
     printf("|                                                            Total: %15.2f  |\n", total);
 }
 
+/**
+ * Shows the receipt.
+ *
+ * @param cashAmount the cash you need
+ *
+ * @return
+ * The change of the transaction.
+ */
 float showReceipt(float cashAmount)
 {
 
@@ -298,6 +365,9 @@ float showReceipt(float cashAmount)
     return change;
 }
 
+/**
+ * Shows the cart
+ */
 void showCart()
 {
 
@@ -310,7 +380,6 @@ void showCart()
 /*==============================*
  *          NAVIGATION          *
  *==============================*/
-
 typedef enum
 {
     MENU_EVENT_NO_EVENT = -1,
@@ -342,19 +411,24 @@ typedef struct
 MenuPage history[MAX_HISTORY_STACK];
 int historySize = 0;
 
-int historyPop()
+/**
+ * Pops the topmost history from the stack
+ */
+void historyPop()
 {
 
     if (historySize > 0)
     {
         history[historySize--];
-        return historySize;
     }
-
-    return -1;
 }
 
-int historyPopUntil(char *name)
+/**
+ * Pops the history until it reaches the `name`
+ * 
+ * @param name the `MenuPage` name;
+*/
+void historyPopUntil(char *name)
 {
     MenuPage menuPage;
     menuPage.name = ""; // prevents Segmentation Error
@@ -367,6 +441,11 @@ int historyPopUntil(char *name)
     }
 }
 
+/**
+ * Pushes the `MenuPage` to the top of the history
+ * 
+ * @param menuPage the page you want to push
+*/
 void historyPush(MenuPage menuPage)
 {
     if (historySize < MAX_HISTORY_STACK - 1)
@@ -378,6 +457,8 @@ void historyPush(MenuPage menuPage)
 /*==============================*
  *            MENUS             *
  *==============================*/
+
+//function prototypes
 
 MenuEvent showMainMenu(UserInfo info);
 MenuEvent showSelectCoffeeTypeMenu(UserInfo info);
@@ -394,6 +475,8 @@ MenuEvent showReceiptMenu(UserInfo info);
 MenuEvent showCartMenu(UserInfo info);
 MenuEvent showCartEditMenu(UserInfo info);
 
+//Pages
+
 MenuPage mainMenuPage = {"Main Menu", showMainMenu};
 MenuPage coffeeTypePage = {"Coffee Type", showSelectCoffeeTypeMenu};
 MenuPage hotCoffeeFlavorsPage = {"Hot Coffee Flavors", showSelectHotCoffeeFlavorMenu};
@@ -409,6 +492,10 @@ MenuPage receiptPage = {"Receipt", showReceiptMenu};
 MenuPage cartPage = {"Cart", showCartMenu};
 MenuPage cartEditPage = {"Cart Edit", showCartEditMenu};
 
+
+/**
+ * Clears the terminal by printing 50 newlines.
+*/
 void clearTerminal()
 {
     for (int i = 0; i < 50; i++)
@@ -417,6 +504,11 @@ void clearTerminal()
     }
 }
 
+/**
+ * Prints the menu name in a specific format
+ * 
+ * @param menuName the name of the menu
+*/
 void showMenuName(const char *menuName)
 {
     printf("+-------------------------------------------------------------+\n");
@@ -424,11 +516,21 @@ void showMenuName(const char *menuName)
     printf("+-------------------------------------------------------------+\n");
 }
 
+/**
+ * Prints the cart choice with the total items and cost of the cart
+*/
 void cartChoiceDisplay()
 {
     printf("|    >  Cart  [ %3d Items , Total:  %12.2f ]            |\n", cartSize, getCartTotalPrice());
 }
 
+/**
+ * Shows the menu with the lists of flavors.
+ * 
+ * @param menuName the name of the menu
+ * @param menuItems the array of flavors
+ * @param menuItemCount the count of the flavors in the array
+*/
 void showMenuFlavorsItems(const char *menuName, const char *menuItems[], unsigned int menuItemCount)
 {
 
@@ -445,6 +547,13 @@ void showMenuFlavorsItems(const char *menuName, const char *menuItems[], unsigne
     printf("+-------------------------------------------------------------+\n");
 }
 
+/**
+ * Prints the current order.
+ * 
+ * @param info the user info
+ * @param removeTop set to 1 to remove the top
+ * @param removeBottom set to 1 to remove the bottom
+*/
 void showCurrentOrder(UserInfo info, int removeTop, int removeBottom)
 {
 
@@ -472,6 +581,15 @@ void showCurrentOrder(UserInfo info, int removeTop, int removeBottom)
         printf("+-------------------------------------------------------------+\n");
 }
 
+/**
+ * Checks if the inputted flavor is valid
+ * 
+ * @param flavor the flavor you want to check
+ * @param flavors the array of flavors
+ * @param count the count the of flavors in the array
+ * 
+ * @return `"Invalid"` if invalid else the flavor name
+*/
 char *isValidFlavor(const char *flavor, const char *flavors[], unsigned int count)
 {
     char *isValid = "Invalid";
@@ -497,6 +615,15 @@ char *isValidFlavor(const char *flavor, const char *flavors[], unsigned int coun
     return isValid;
 }
 
+/**
+ * Checks if the inputted size is valid
+ * 
+ * @param size the size you want to check
+ * @param sizes the array of sizes
+ * @param count the count the of sizes in the array
+ * 
+ * @return `"Invalid"` if invalid else the size
+*/
 char *isValidSize(const char *size, const char *sizes[], unsigned int count)
 {
     char *isValid = "Invalid";
@@ -517,6 +644,14 @@ char *isValidSize(const char *size, const char *sizes[], unsigned int count)
     return isValid;
 }
 
+/**
+ * Gets the inputted integer.
+ * 
+ * @param label 
+ * 
+ * @return
+ * The inputted integer
+*/
 int getInputInteger(const char *label)
 {
     int num;
@@ -526,6 +661,14 @@ int getInputInteger(const char *label)
     return num;
 }
 
+/**
+ * Gets the inputted string and turns it into lowercase
+ * 
+ * @param label 
+ * 
+ * @return
+ * the lowercase inputted string
+*/
 char *getInputString(const char *label)
 {
     char buffer[30];
@@ -536,6 +679,7 @@ char *getInputString(const char *label)
 
     return strdup(strlwr(buffer));
 }
+
 
 MenuEvent showCartEditMenu(UserInfo info)
 {
@@ -722,6 +866,7 @@ MenuEvent showCartEditMenu(UserInfo info)
 
     return event;
 }
+
 
 MenuEvent showCartMenu(UserInfo info)
 {
@@ -979,7 +1124,6 @@ MenuEvent showSetQuantityMenu(UserInfo info)
     {
         event.id = MENU_EVENT_SET_QUANTITY;
     }
-
 
     if (quantity >= MAX_QUANTITY)
         quantity = MAX_QUANTITY;
