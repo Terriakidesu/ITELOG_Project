@@ -224,6 +224,8 @@ int findItemIndexByName(const char *name)
 
 /**
  * Add the item to the cart
+ * 
+ * Automatically detects if there's an existing item and merges it. 
  *
  * @param cartItem the item to add
  */
