@@ -124,12 +124,12 @@ float getProductPrice(const char *name, const char *size)
     }
     else if (strcmp(name, "Iced Coffee") == 0)
     {
-        int index = getSizeIndex(icedCoffeeSizes, size, 3);
+        int index = getSizeIndex(size, icedCoffeeSizes, 3);
         return icedCoffeePrices[index];
     }
     else if (strcmp(name, "Milk Tea") == 0)
     {
-        int index = getSizeIndex(milkTeaSizes, size, 2);
+        int index = getSizeIndex(size, milkTeaSizes, 2);
         return milkTeaPrices[index];
     }
 
