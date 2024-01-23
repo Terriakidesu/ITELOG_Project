@@ -144,6 +144,7 @@ typedef struct
     float cash;
 
     // The current order is stored here
+    // I can use the `CartItem` struct here...
     char name[30];
     char flavor[30];
     char size[10];
