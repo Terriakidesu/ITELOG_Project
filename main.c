@@ -294,7 +294,7 @@ void removeFromCartByName(const char *name)
  * Sets the item from `index` to the desired quantity.
  *
  * @param index the item index
- * @param quantity the desired quantity (0 - `MAX_QUANTITY`). 0 removes the item from the cart.
+ * @param quantity the desired quantity (`0` to `MAX_QUANTITY`). 0 removes the item from the cart.
  */
 void setCartItemQuantityByIndex(int index, int quantity)
 {
