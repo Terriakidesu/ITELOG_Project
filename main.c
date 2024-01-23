@@ -85,7 +85,7 @@ const float milkTeaPrices[] = {
  * @param size the size you want the index of
  * @param sizes the array of sizes
  * @param sizeCount the count of the array
- * 
+ *
  * @return
  * The index of the size else `-1`
  */
@@ -105,16 +105,15 @@ int getSizeIndex(const char *size, const char *sizes[], unsigned int sizeCount)
     return index;
 }
 
-
 /**
  * Gets the product's price.
- * 
+ *
  * @param name the product's name
  * @param size the product's size
- * 
+ *
  * @return
  * The product's price else -1
-*/
+ */
 float getProductPrice(const char *name, const char *size)
 {
 
@@ -175,7 +174,7 @@ CartItem cart[MAX_CART_SIZE];
 
 /**
  * Gets the Item's full name.
- * 
+ *
  * Merges the `name`,`flavor`, and `size` into a single string.
  *
  * @param cartItem the item you want to get the full name
@@ -224,8 +223,8 @@ int findItemIndexByName(const char *name)
 
 /**
  * Add the item to the cart
- * 
- * Automatically detects if there's an existing item and merges it. 
+ *
+ * Automatically detects if there's an existing item and merges it.
  *
  * @param cartItem the item to add
  */
@@ -801,6 +800,7 @@ MenuEvent showCartEditMenu(UserInfo info)
                 printf("|      >  %-25s %-25s |\n", icedCoffeeFlavors[i], "");
             }
             printf("|                                                             |\n");
+            printf("+-------------------------------------------------------------+\n");
         }
         else if (strcmp(item.name, "Milk Tea") == 0)
         {
@@ -812,6 +812,7 @@ MenuEvent showCartEditMenu(UserInfo info)
                 printf("|      >  %-25s %-25s |\n", milkTeaFlavors[i], "");
             }
             printf("|                                                             |\n");
+            printf("+-------------------------------------------------------------+\n");
         }
 
         char *isValid = "Invalid";
