@@ -11,8 +11,6 @@
  *          PRODUCTS            *
  *==============================*/
 
-const float addonPrice = 10.0;
-
 const char *hotCoffeeFlavors[] = {
     "Vanilla",
     "Caramel",
@@ -274,7 +272,6 @@ void listCartItems()
         float subtotal = (float)item.quantity * price;
 
         printf("| %3d | %-32s%-10s %6.2f   x %5d     |%10.2f  |\n", i + 1, item.name, item.size, price, item.quantity, subtotal);
-        //\\\\\\+-----+-\-\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\------------------------------+------------+
         printf("|     | └ %-32s                              |            |\n", item.flavor);
     }
 
@@ -983,7 +980,6 @@ MenuEvent showSetQuantityMenu(UserInfo info)
         event.id = MENU_EVENT_SET_QUANTITY;
     }
 
-    free(input);
 
     if (quantity >= MAX_QUANTITY)
         quantity = MAX_QUANTITY;
@@ -992,7 +988,7 @@ MenuEvent showSetQuantityMenu(UserInfo info)
 
     event.numberValue = quantity;
 
-    // free(input);
+    free(input);
 
     return event;
 }
@@ -1126,12 +1122,6 @@ MenuEvent showSelectMilkTeaFlavorMenu(UserInfo info)
         event.id = MENU_EVENT_RESET;
         historyPop();
     }
-    else if (strcmp(input, "none") == 0)
-    {
-        historyPush(milkTeaSizesPage);
-        event.id = MENU_EVENT_SET_FLAVOR;
-        event.stringValue = "";
-    }
 
     for (int i = 0; i < 10; i++)
     {
@@ -1172,12 +1162,6 @@ MenuEvent showSelectIcedCoffeeFlavorMenu(UserInfo info)
     {
         historyPop();
     }
-    else if (strcmp(input, "none") == 0)
-    {
-        historyPush(icedCoffeeSizesPage);
-        event.id = MENU_EVENT_SET_FLAVOR;
-        event.stringValue = "";
-    }
 
     for (int i = 0; i < 11; i++)
     {
@@ -1217,12 +1201,6 @@ MenuEvent showSelectHotCoffeeFlavorMenu(UserInfo info)
     else if (strcmp(input, "back") == 0)
     {
         historyPop();
-    }
-    else if (strcmp(input, "none") == 0)
-    {
-        historyPush(hotCoffeeSizesPage);
-        event.id = MENU_EVENT_SET_FLAVOR;
-        event.stringValue = "";
     }
 
     for (int i = 0; i < 8; i++)
@@ -1402,7 +1380,7 @@ int main()
         default:
             break;
         }
-    }
+    };
 
     return 0;
 }
