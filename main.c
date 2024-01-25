@@ -1,5 +1,5 @@
 /**
- * This is an programming project for the ITELOG subject.
+ * This is a programming project for the ITELOG subject.
  */
 
 #include <stdio.h>
